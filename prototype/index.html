@@ -245,6 +245,7 @@
   .gt-list-card.locked{opacity:.5;cursor:default;}
 
   .gallery-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:#fff;margin-bottom:10px;cursor:pointer;}
+  .gallery-card.locked{opacity:.5;cursor:default;} /* same treatment as .gt-list-card.locked */
   .gallery-card .ic{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:19px;flex:0 0 auto;}
   .gallery-card .t{flex:1;min-width:0;}
   .gallery-card .t .n{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1690,20 +1691,20 @@
           <div class="t"><div class="n">空间想象挑战</div><div class="d">IQ · 平台题库</div></div>
           <div class="plays">890 次玩过</div>
         </div>
-        <div class="gallery-card" data-cat="math" onclick="go('player');pgo('landing-iq');">
+        <div class="gallery-card" data-cat="math" onclick="openMathGame('mixed','d2');">
           <div class="ic" style="background:var(--accent-tint);">➗</div>
           <div class="t"><div class="n">心算基础版</div><div class="d">Math · 平台题库</div></div>
           <div class="plays">5,120 次玩过</div>
         </div>
-        <div class="gallery-card" data-cat="math" onclick="go('player');pgo('landing-iq');">
+        <div class="gallery-card" data-cat="math" onclick="openMathGame('mixed','d4');">
           <div class="ic" style="background:var(--accent-tint);">➗</div>
           <div class="t"><div class="n">极限心算王</div><div class="d">Math · 平台题库</div></div>
           <div class="plays">3,400 次玩过</div>
         </div>
-        <div class="gallery-card" data-cat="idioms" onclick="go('player');pgo('landing-iq');">
+        <div class="gallery-card locked" data-cat="idioms">
           <div class="ic" style="background:#FFF3D9;">🈶</div>
-          <div class="t"><div class="n">成语大挑战</div><div class="d">成语 · 平台题库</div></div>
-          <div class="plays">1,780 次玩过</div>
+          <div class="t"><div class="n">成语大挑战</div><div class="d">成语 · 平台题库 · 即将开放</div></div>
+          <div class="plays">🔒</div>
         </div>
         <div class="gallery-card" data-cat="personality" onclick="go('player');pgo('landing-connection');">
           <div class="ic" style="background:#F3E8FF;">💞</div>
@@ -4673,7 +4674,11 @@
     return qs;
   }
 
-  /* ---- current game state ---- */
+  /* ---- current game state ----
+     Discovery-flow config, conceptually: category:'math', series:'basic-arithmetic',
+     mode: currentMathOpId, difficulty: currentMathDiffId, game_id: currentMathGameId.
+     The Missing Number series (series:'missing-number') is the separate, parallel
+     currentMissingOpId/DiffId/GameId state below — see its own state-block comment. */
   let currentMathOpId = 'add';
   let currentMathDiffId = 'd2';
   let currentMathGameId = 'math-add-d2';
@@ -5061,7 +5066,9 @@
     return generateMissingOpQuestions(opId, diffId, 20, 'v1');
   }
 
-  /* ---- current game state (fully separate from Basic Math's math* globals above) ---- */
+  /* ---- current game state (fully separate from Basic Math's math* globals above)
+     Discovery-flow config, conceptually: category:'math', series:'missing-number',
+     mode: currentMissingOpId, difficulty: currentMissingDiffId, game_id: currentMissingGameId. ---- */
   let currentMissingOpId = 'mixed';
   let currentMissingDiffId = '2_digit';
   let currentMissingGameId = 'missing_mixed_2_digit';
@@ -6077,6 +6084,9 @@
     document.getElementById('gtsCatTitle').textContent = data.title;
     document.getElementById('gtsSubtitle').textContent = data.subtitle;
     let html = '';
+    if (cat === 'math') {
+      html += '<div style="font-size:11px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin:0 0 10px;">Basic Arithmetic · 基础运算</div>';
+    }
     data.types.forEach((t, idx) => {
       if (t.available) {
         const clickFn = (cat === 'math') ? ('openMathOperation(' + idx + ')') : ('openGameTypeIntro(\'' + cat + '\',' + idx + ')');
@@ -6092,7 +6102,7 @@
       }
     });
     if (cat === 'math' && data.missingTypes) {
-      html += '<div style="font-size:11px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin:22px 0 10px;">Missing Number Challenge · 数字填空挑战</div>';
+      html += '<div style="font-size:11px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin:22px 0 10px;">Missing Number · 数字填空</div>';
       data.missingTypes.forEach((t) => {
         if (t.available) {
           html += '<div class="gt-list-card" onclick="openMissingOperation(\'' + t.opId + '\')">'
