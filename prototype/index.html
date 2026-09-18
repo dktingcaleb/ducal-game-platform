@@ -1043,17 +1043,17 @@
       <div class="mkt-footer">
         <div class="l">© 2026 Ducal Game</div>
         <div class="links">
-          <a onclick="openLegal('隐私政策')">隐私政策</a>
-          <a onclick="openLegal('服务条款')">服务条款</a>
-          <a onclick="openLegal('Cookie 政策')">Cookie 政策</a>
-          <a onclick="openLegal('社区规范')">社区规范</a>
-          <a onclick="openLegal('版权声明 / DMCA')">版权声明</a>
+          <a onclick="openLegal('privacy')">隐私政策</a>
+          <a onclick="openLegal('terms')">服务条款</a>
+          <a onclick="openLegal('cookies')">Cookie 政策</a>
+          <a onclick="openLegal('community-guidelines')">社区规范</a>
+          <a onclick="openLegal('copyright')">版权声明</a>
           <a onclick="go('report')">举报</a>
         </div>
       </div>
 
       <div class="cookie-banner" id="cookieBanner">
-        <div class="cb-text">我们使用 Cookie 来improve你的体验，并支持 Google 等合作方投放广告。继续使用即代表你同意我们的 <a onclick="openLegal('Cookie 政策')">Cookie 政策</a>。</div>
+        <div class="cb-text">我们使用 Cookie 来improve你的体验，并支持 Google 等合作方投放广告。继续使用即代表你同意我们的 <a onclick="openLegal('cookies')">Cookie 政策</a>。</div>
         <div class="cb-actions">
           <button class="btn ghost sm" onclick="document.getElementById('cookieBanner').style.display='none'">仅必要 Cookie</button>
           <button class="btn primary sm" onclick="document.getElementById('cookieBanner').style.display='none'">全部接受</button>
@@ -1120,24 +1120,12 @@
           <div class="legal-meta">最后更新：2026 年 8 月</div>
 
           <p class="legal-placeholder">
-            这里是 <b id="legalTitle2">隐私政策</b> 的正文占位——实际条文需要请法务或专业服务撰写，不同页面（关于我们/联系方式/隐私政策/服务条款/Cookie 政策/社区规范/版权声明/举报流程）内容差异很大，这里只演示排版结构：标题、更新日期、目录、分段落正文、联系方式区块。
+            这里是 <b id="legalTitle2">隐私政策</b> 的正文占位——实际条文需要请法务或专业服务撰写，不同页面（隐私政策/服务条款/Cookie 政策/社区规范/版权声明）内容差异很大，这里只演示排版结构：标题、更新日期、目录、分段落正文、联系方式区块。
           </p>
 
-          <div class="legal-toc">
-            <div class="t">目录</div>
-            <a>1. 我们收集哪些信息</a>
-            <a>2. 信息如何被使用</a>
-            <a>3. Cookie 与广告合作方</a>
-            <a>4. 你的权利与选择</a>
-            <a>5. 联系我们</a>
-          </div>
+          <div class="legal-toc" id="legalToc"></div>
 
-          <h3>1. 我们收集哪些信息</h3>
-          <p>占位文字……</p>
-          <h3>2. 信息如何被使用</h3>
-          <p>占位文字……</p>
-          <h3>3. Cookie 与广告合作方</h3>
-          <p>占位文字，需说明 Google 等第三方会通过 Cookie 投放广告，并提供退出个性化广告的方式……</p>
+          <div id="legalSections"></div>
 
           <div class="legal-contact">
             <div class="t">还有问题？</div>
@@ -1892,7 +1880,7 @@
             </div>
 
             <p style="font-size:11px;color:var(--ink-soft);text-align:center;margin:14px 0 0;line-height:1.6;">
-              继续即代表你同意我们的<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="openLegal('服务条款')">服务条款</span>和<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="openLegal('隐私政策')">隐私政策</span>
+              继续即代表你同意我们的<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="openLegal('terms')">服务条款</span>和<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="openLegal('privacy')">隐私政策</span>
             </p>
 
             <div class="cs-or">或使用邮箱注册</div>
@@ -1908,7 +1896,7 @@
 
             <label class="tos-check">
               <input type="checkbox" id="regTosCheck" onchange="document.getElementById('regEmailBtn').disabled = !this.checked;" />
-              <span>我已阅读并同意<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="event.preventDefault();openLegal('服务条款')">服务条款</span>和<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="event.preventDefault();openLegal('隐私政策')">隐私政策</span></span>
+              <span>我已阅读并同意<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="event.preventDefault();openLegal('terms')">服务条款</span>和<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="event.preventDefault();openLegal('privacy')">隐私政策</span></span>
             </label>
             <button class="btn accent full" id="regEmailBtn" disabled onclick="completeRegistration('creator-name')">创建账号</button>
           </div>
@@ -6474,10 +6462,124 @@
     go('settings');
     openSettingsPanel(id);
   }
-  function openLegal(title){
-    document.getElementById('legalTitle').textContent = title;
-    document.getElementById('legalTitle2').textContent = title;
+  /* ---- Legal / System — one shared template (the existing #legal screen) rendering five separate
+       documents. Only content (title/TOC/sections) is data-driven; shell/typography/spacing/colors
+       are the existing legal-page/legal-doc/legal-toc/legal-contact markup, untouched. ---- */
+  const LEGAL_DOCS = {
+    privacy: {
+      title: '隐私政策',
+      addr: 'ducalgame.com/legal/privacy',
+      sections: [
+        {h:'简介', p:'本隐私政策说明 Ducal Game 如何收集、使用和保护你在使用我们的产品和服务时提供的信息。'},
+        {h:'我们收集哪些信息', p:'我们可能收集你提供的账户信息、你在游戏中产生的活动数据，以及设备和浏览器自动生成的技术信息。'},
+        {h:'我们如何使用信息', p:'我们使用这些信息来提供和改进游戏体验、生成排行榜与结果、防止滥用，以及在你同意的情况下展示相关广告。'},
+        {h:'账户信息', p:'注册账户时，我们会保存你的用户名、邮箱地址以及登录方式等基本信息，用于身份验证和账户管理。'},
+        {h:'游戏与活动数据', p:'我们会记录你玩过的游戏、答题结果、分数与挑战记录，以便展示历史记录、排行榜和个性化推荐。'},
+        {h:'Cookie 与同类技术', p:'我们使用 Cookie 及类似技术来记住你的偏好、分析产品使用情况，并支持 Google 等合作方投放广告，详见我们的 Cookie 政策。'},
+        {h:'信息共享', p:'除非获得你的同意、为提供服务所必需，或法律要求，我们不会将你的个人信息出售或提供给无关第三方。'},
+        {h:'数据保留', p:'我们仅在实现本政策所述目的所需的期限内保留你的信息，之后会安全删除或匿名化处理。'},
+        {h:'安全措施', p:'我们采取合理的技术和管理措施保护你的信息，但没有任何线上服务能保证绝对安全。'},
+        {h:'未成年人 / 年龄要求', p:'我们的服务面向达到当地法定年龄的用户，如发现未达标用户提供的个人信息，我们会尽快删除。'},
+        {h:'你的权利与选择', p:'你可以随时访问、更正或删除你的账户信息，也可以在设置中管理通知和广告个性化偏好。'},
+        {h:'国际用户', p:'如果你从中国大陆以外地区访问我们的服务，你的信息可能会被传输到不同国家处理，我们会采取适当的保护措施。'},
+        {h:'政策变更', p:'我们可能会不时更新本政策，重大变更会通过应用内通知或更新页面顶部的日期提示你。'},
+        {h:'联系我们', p:'如对本政策有任何疑问，欢迎通过 support@ducalgame.com 与我们联系。'},
+      ],
+    },
+    terms: {
+      title: '服务条款',
+      addr: 'ducalgame.com/legal/terms',
+      sections: [
+        {h:'简介', p:'本服务条款约束你对 Ducal Game 网站、应用和相关服务的使用，使用我们的服务即表示你同意本条款。'},
+        {h:'使用资格', p:'你需要达到所在地区规定的最低年龄，并具备签订具有法律约束力协议的行为能力才能使用本服务。'},
+        {h:'账户', p:'你需要对账户信息的准确性和账户下的所有活动负责，请妥善保管你的登录凭证。'},
+        {h:'可接受使用规范', p:'使用本服务时，你同意不进行任何违法、欺诈或干扰其他用户正常使用的行为。'},
+        {h:'游戏与用户活动', p:'平台游戏和用户创建的 Quiz 仅供娱乐和社交互动使用，结果和评分不构成任何专业评估。'},
+        {h:'分数与排行榜', p:'排行榜基于你的作答表现自动生成，我们保留在发现异常或作弊行为时调整或移除记录的权利。'},
+        {h:'用户生成内容', p:'你对自己创建的题目、问题和其他内容负全部责任，内容需遵守我们的社区规范。'},
+        {h:'奖励 / 广告 / 重玩功能', p:'部分重玩或解锁功能可能需要观看广告，广告内容由第三方合作方提供，我们不对广告内容本身负责。'},
+        {h:'知识产权', p:'Ducal Game 的名称、标志、界面设计和平台题库均受知识产权法保护，未经授权不得复制或用于商业用途。'},
+        {h:'第三方服务', p:'本服务可能包含指向第三方网站或服务的链接，我们对这些第三方的内容或做法不承担责任。'},
+        {h:'暂停与终止', p:'如果你违反本条款，我们保留暂停或终止你账户访问权限的权利，且无需事先通知。'},
+        {h:'免责声明', p:'本服务按"现状"提供，我们不对服务的不间断性、准确性或适用于特定目的作出保证。'},
+        {h:'责任限制', p:'在法律允许的最大范围内，Ducal Game 对因使用或无法使用本服务而产生的间接或衍生损失不承担责任。'},
+        {h:'服务变更', p:'我们可能随时修改、暂停或终止部分或全部服务功能，恕不另行个别通知。'},
+        {h:'条款变更', p:'我们可能不时更新本条款，更新后的条款将在页面公布并标注生效日期，继续使用即代表你接受新条款。'},
+        {h:'适用法律', p:'本条款的解释和适用受相关司法管辖区法律管辖，具体以你所在地区的适用法律为准。'},
+        {h:'联系我们', p:'如对本条款有任何疑问，欢迎通过 support@ducalgame.com 与我们联系。'},
+      ],
+    },
+    cookies: {
+      title: 'Cookie 政策',
+      addr: 'ducalgame.com/legal/cookies',
+      sections: [
+        {h:'什么是 Cookie', p:'Cookie 是网站在你的设备上存储的小型文本文件，用于记住你的偏好和识别你的浏览会话。'},
+        {h:'我们如何使用 Cookie', p:'我们使用 Cookie 来维持登录状态、记住界面偏好、分析产品使用情况，以及支持广告投放。'},
+        {h:'必要 Cookie', p:'这类 Cookie 对网站的基本功能（如登录和安全）是必需的，无法在设置中关闭。'},
+        {h:'分析类 Cookie', p:'我们使用分析类 Cookie 了解用户如何使用产品，帮助我们改进功能和体验。'},
+        {h:'广告 / 激励广告技术', p:'我们与 Google 等广告合作方使用 Cookie 投放广告，并支持"观看广告解锁重玩"等激励广告功能。'},
+        {h:'偏好设置 Cookie', p:'这类 Cookie 用于记住你的语言、显示设置等个性化偏好，让你下次访问时无需重新设置。'},
+        {h:'第三方技术', p:'部分 Cookie 由我们的分析和广告合作方设置，其使用方式受该第三方自身隐私政策约束。'},
+        {h:'管理 Cookie', p:'你可以通过浏览器设置管理或删除 Cookie，也可以在我们的 Cookie 横幅中调整非必要 Cookie 的授权。'},
+        {h:'政策更新', p:'我们可能会不时更新本政策以反映技术或法规变化，更新后会调整页面顶部的日期。'},
+        {h:'联系我们', p:'如对本政策有任何疑问，欢迎通过 support@ducalgame.com 与我们联系。'},
+      ],
+    },
+    'community-guidelines': {
+      title: '社区规范',
+      addr: 'ducalgame.com/legal/community-guidelines',
+      sections: [
+        {h:'宗旨', p:'本社区规范旨在帮助 Ducal Game 成为一个友好、安全、充满乐趣的社交游戏空间。'},
+        {h:'保持尊重', p:'请以尊重的态度对待其他玩家，即使在竞技或挑战场景中也是如此。'},
+        {h:'禁止骚扰或霸凌', p:'不允许针对其他用户的骚扰、恐吓或持续性的负面攻击行为。'},
+        {h:'禁止仇恨或歧视', p:'不允许基于种族、性别、宗教、性取向等发表仇恨或歧视性言论。'},
+        {h:'禁止威胁或暴力内容', p:'不允许发布任何形式的暴力威胁或宣扬伤害他人的内容。'},
+        {h:'禁止性或露骨内容', p:'创建的题目和内容中不得包含色情、露骨或不适合公开展示的内容。'},
+        {h:'禁止垃圾信息或操纵行为', p:'不允许发布垃圾信息，或通过刷分、刷流量等方式操纵排行榜和数据。'},
+        {h:'禁止作弊或滥用', p:'不允许使用外挂、脚本或其他违规手段获取不正当的分数或奖励。'},
+        {h:'禁止冒充他人', p:'不允许冒充其他用户、品牌或 Ducal Game 官方身份发布内容。'},
+        {h:'尊重隐私', p:'未经他人同意，请勿在题目或分享内容中公开他人的私人信息。'},
+        {h:'用户生成内容规则', p:'你创建的 Quiz 题目内容需遵守本规范，我们保留下架违规内容的权利。'},
+        {h:'举报', p:'如果你发现违反本规范的内容，可以使用举报功能告知我们，我们会尽快处理。'},
+        {h:'处理措施', p:'违反本规范可能导致内容被移除、账户功能受限，情节严重的会永久封禁账户。'},
+        {h:'申诉 / 联系我们', p:'如果你认为处理结果有误，可以通过 support@ducalgame.com 提交申诉。'},
+      ],
+    },
+    copyright: {
+      title: '版权声明',
+      addr: 'ducalgame.com/legal/copyright',
+      sections: [
+        {h:'版权声明', p:'Ducal Game 平台上的原创内容，包括界面设计、题库和品牌素材，均受版权法保护。'},
+        {h:'Ducal Game 内容的所有权', p:'除用户生成内容外，平台上的设计、文案、题目和代码归 Ducal Game 或其授权方所有。'},
+        {h:'用户生成内容', p:'你保留自己创建内容的所有权，但授予我们在平台上展示、分发该内容所需的许可。'},
+        {h:'允许的使用方式', p:'你可以出于个人、非商业目的浏览、游玩和分享平台上的内容。'},
+        {h:'禁止的复制 / 转载行为', p:'未经书面授权，不得复制、转载或用于商业用途平台的题库、设计或代码。'},
+        {h:'商标与品牌', p:'"Ducal Game" 名称及相关标志为我们的商标，未经授权不得使用于任何产品或宣传中。'},
+        {h:'版权投诉', p:'如果你认为平台上的内容侵犯了你的版权，请通过 support@ducalgame.com 联系我们并提供相关证明材料。'},
+        {h:'DMCA / 版权方联系方式（如适用）', p:'如适用地区法律要求，我们会按照 DMCA 或当地版权法规处理合规的下架通知。'},
+        {h:'重复侵权处理', p:'对多次被认定侵犯版权的账户，我们保留限制或终止其账户的权利。'},
+        {h:'联系我们', p:'如对版权事宜有任何疑问，欢迎通过 support@ducalgame.com 与我们联系。'},
+      ],
+    },
+  };
+
+  function openLegal(slug){
+    const doc = LEGAL_DOCS[slug] || LEGAL_DOCS.privacy;
+    document.getElementById('legalTitle').textContent = doc.title;
+    document.getElementById('legalTitle2').textContent = doc.title;
+
+    let tocHtml = '<div class="t">目录</div>';
+    doc.sections.forEach((s, i) => { tocHtml += '<a>' + (i + 1) + '. ' + s.h + '</a>'; });
+    document.getElementById('legalToc').innerHTML = tocHtml;
+
+    let sectionsHtml = '';
+    doc.sections.forEach((s, i) => {
+      sectionsHtml += '<h3>' + (i + 1) + '. ' + s.h + '</h3><p>' + s.p + '</p>';
+    });
+    document.getElementById('legalSections').innerHTML = sectionsHtml;
+
     go('legal');
+    addrBar.textContent = doc.addr; // same override pattern already used by the workbench/workbench-locked harness buttons
   }
   go('landing');
 </script>
