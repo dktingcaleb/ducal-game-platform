@@ -633,11 +633,18 @@ Desktop Creator/Application navigation currently uses:
 
 This is a Page-Family Shared component.
 
+Applies at **≥1024px** (Desktop). Below that, the Mobile Bottom Navigation Foundation (§24)
+applies instead — Mobile and Tablet share that model (see
+`05-RESPONSIVE-FOUNDATION.md` §37).
+
 Do not reuse the full Creator sidebar automatically on Marketing or Player pages.
 
 ---
 
 # 24. Mobile Bottom Navigation Foundation
+
+APPROVED: Mobile and Tablet share this same navigation model
+(`05-RESPONSIVE-FOUNDATION.md` §37). This is no longer Mobile-only.
 
 Current compact Creator/Application navigation uses:
 
@@ -646,11 +653,40 @@ Current compact Creator/Application navigation uses:
 - muted inactive state
 - brand active state
 
-This is the mobile counterpart of the Creator/Application primary navigation.
+This is the Mobile **and Tablet** counterpart of the Creator/Application primary navigation
+(Sidebar, §23), triggered at **≤1023px** via a navigation-scoped container query, independent
+of the `≤700px` content-layout threshold used elsewhere.
 
 It is not a global bottom nav for every Ducal Game experience.
 
+## Screens using it
+
+```text
+Dashboard, Library, Analytics, Game Detail, Profile, Play History, Notifications, Settings,
+Games / Discovery, Category Select, Game Type Select, Math / Missing Number difficulty
+selection, Game Type Intro, Play History Detail
+```
+
+## Screens excluded
+
+```text
+Marketing/Public content (Landing, About, Contact)
+Authentication (Login, Register, Forgot Password, Claim Success)
+Legal pages
+Active Player gameplay
+Workbench / Editor (Challenge, Challenge Preview, Challenge Share)
+External/shared Player views
+System/error pages
+```
+
 Do not show it during active Player gameplay unless explicitly required.
+
+## Known gaps (tracked in `05-RESPONSIVE-FOUNDATION.md` §37)
+
+- Game Type Intro and Play History Detail are approved for inclusion but not yet implemented,
+  pending a scoped update to the shared Player-stage/Center Card component.
+- Games / Discovery must not show this Bottom Tab and the Marketing top nav at the same
+  time — currently both render simultaneously; resolution pending.
 
 ---
 

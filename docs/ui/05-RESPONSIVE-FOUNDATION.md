@@ -168,6 +168,10 @@ Safe migration order:
 
 This prevents responsive refactoring and visual redesign from becoming one uncontrolled change.
 
+> Exception (approved): the App Navigation Model (sidebar vs. Bottom Tab) now uses its own,
+> wider, navigation-only container query — see §37. Content-layout rules everywhere else
+> continue to follow the single `@container (max-width: 700px)` threshold described above.
+
 ---
 
 # 6. Mandatory Three-Viewport Delivery
@@ -923,7 +927,77 @@ but are allowed to use different responsive compositions appropriate to the avai
 
 ---
 
-# 37. Next Step
+# 37. Approved: Unified Mobile + Tablet App Navigation Model
+
+Status: APPROVED — implementation in progress (see Known Implementation Gaps below).
+
+## Core Rule
+
+Mobile and Tablet share the same primary navigation model for app/product screens:
+
+```text
+Mobile   0-767,    ref 390  → Bottom Tab
+Tablet   768-1023, ref 834  → Bottom Tab (same model as Mobile)
+Desktop  1024+,    ref 1280 → existing sidebar navigation, unchanged
+```
+
+This is a navigation-model decision only. It does not change Tablet content layout (grids,
+tables, spacing, card composition), which continues to follow the existing
+`@container (max-width: 700px)` content-layout threshold (§5, §35).
+
+## Breakpoint
+
+A second, navigation-scoped container query governs this, independent of the existing
+content-layout threshold:
+
+```css
+@container (max-width: 1023px) { /* sidebar -> top bar + Bottom Tab */ }
+```
+
+```text
+≤700px   content-layout rules (grids, tables, workbench outline, settings drill-down,
+         player padding, etc.) — unchanged, still Mobile-only.
+≤1023px  navigation-model rules only (sidebar ↔ top-bar, Bottom Tab visibility/placement)
+         — now Mobile + Tablet.
+```
+
+## Screens Using Bottom Tab
+
+```text
+Dashboard, Library, Analytics, Game Detail, Profile, Play History, Notifications, Settings,
+Games / Discovery, Category Select, Game Type Select, Math / Missing Number difficulty
+selection, Game Type Intro, Play History Detail
+```
+
+## Screens Excluded From Bottom Tab
+
+```text
+Landing / About / Contact
+Login / Register / Forgot Password / Claim Success
+Legal pages
+Active Player gameplay (question/result screens)
+Workbench / Editor (Challenge, Challenge Preview, Challenge Share)
+External/shared Player views (e.g. connection-shared-view)
+System/error pages (Link Expired, Game Offline, Not Found)
+```
+
+## Known Implementation Gaps
+
+The rule above is approved. As of the current implementation:
+
+- **Game Type Intro and Play History Detail** are approved for Bottom Tab but not yet
+  implemented — both currently use the shared `.player-stage`/`.center-card` component, which
+  centers a single child via flexbox and cannot host a Bottom Tab sibling without a scoped
+  update to that shared component (used by many unrelated Player screens). Follow-up task
+  required; do not add the Bottom Tab to these screens without resolving that first.
+- **Games / Discovery** currently shows both the Marketing top nav (`.mkt-nav`) and the Bottom
+  Tab at the same time on Mobile/Tablet, which does not yet satisfy the "no duplicate
+  competing primary navigation" requirement. Follow-up task required to decide which
+  navigation should be shown.
+
+---
+
+# 38. Next Step
 
 The next foundation document should define:
 
