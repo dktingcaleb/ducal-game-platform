@@ -837,6 +837,69 @@
   .mobile-only{display:none;}
   .m-bottomnav{display:none;}
 
+  /* ============================================================
+     APP NAVIGATION MODEL — Mobile (ref 390) and Tablet (ref 834)
+     share the same navigation model: desktop sidebar becomes a
+     slim top bar + sticky Bottom Tab. Desktop (1024+, ref 1280)
+     keeps the existing sidebar untouched (governed by the absence
+     of this container query). This threshold (1023px) is scoped
+     to NAVIGATION ONLY and intentionally wider than the 700px
+     content-layout threshold below — Tablet content (grids,
+     tables, spacing) is unaffected and still follows the 700px
+     query. Matches the Tablet/Desktop ranges already approved in
+     docs/ui/05-RESPONSIVE-FOUNDATION.md §3 (768-1023 / 1024+).
+     Bottom Tab items/icons/colors/active-state are unchanged from
+     the existing implementation — only which widths/screens show it.
+     ============================================================ */
+  @container (max-width: 1023px){
+    .app-shell{display:block;min-height:0;}
+    .sidebar{
+      flex-direction:row;align-items:center;justify-content:space-between;
+      border-right:none;border-bottom:1px solid var(--line);padding:14px 18px;
+    }
+    .sidebar .snav, .sidebar .side-cta{display:none;}
+    .main{padding:18px 18px 90px;}
+    .m-bottomnav{
+      display:flex;position:sticky;bottom:0;left:0;right:0;
+      background:#fff;border-top:1px solid var(--line);
+      padding:9px 6px 14px;gap:2px;z-index:30;
+    }
+    .main > .m-bottomnav{margin:0 -18px -90px;}
+    .m-bottomnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:700;color:var(--ink-soft);cursor:pointer;}
+    .m-bottomnav a .ic{font-size:17px;}
+    .m-bottomnav a.on{color:var(--brand);}
+
+    /* Games/Category Select/Game Type Select/Math & Missing Number difficulty screens use
+       .picker-shell instead of .app-shell/.main — same bleed technique, scoped with
+       .has-bottomnav so About/Contact/Report (also .picker-shell, never show the tab) are untouched.
+       24px matches .picker-shell's own base side padding at this (Tablet) width range. */
+    .picker-shell.has-bottomnav{padding-bottom:90px;}
+    .picker-shell.has-bottomnav > .m-bottomnav{margin:0 -24px -90px;}
+
+    /* Game Type Intro and Play History Detail use the shared .player-stage/.center-card
+       component (a flex container that centers ONE child) for every screen that uses it —
+       Player landing/question/result states, link-expired, game-offline, claim-success, etc.
+       .player-stage/.center-card themselves are NOT modified: this rule only fires for the
+       page-local .has-bottomnav modifier class added on these two screens only, so every
+       other .player-stage usage keeps its exact current flex-centering behavior untouched. */
+    .player-stage.has-bottomnav{
+      display:block;min-height:0;
+      padding:30px 18px 90px;
+    }
+    .player-stage.has-bottomnav > .center-card{margin:0 auto;}
+    .player-stage.has-bottomnav > .m-bottomnav{margin:0 -18px -90px;}
+
+    /* Games: Bottom Tab is the primary navigation at this width, so the competing Marketing
+       nav links/hamburger/CTA and its mobile dropdown are hidden — scoped to the games screen
+       only, so .mkt-nav itself (and every other screen using it) is untouched, and Desktop
+       (>=1024px, outside this query) keeps the full existing Marketing nav unchanged. The
+       brand mark is intentionally left visible as a lightweight header. */
+    [data-screen="games"] .mkt-nav .links,
+    [data-screen="games"] .mkt-nav .hamburger-btn,
+    [data-screen="games"] .mkt-nav .cta,
+    [data-screen="games"] .mobile-menu{display:none;}
+  }
+
   @container (max-width: 700px){
 
     /* ---- marketing landing ---- */
@@ -862,6 +925,7 @@
     .challenge-head{padding:18px 18px 4px;flex-wrap:wrap;}
     .challenge-share{padding:40px 18px 40px;}
     .picker-shell{padding:26px 18px 40px;}
+    .picker-shell.has-bottomnav > .m-bottomnav{margin:0 -18px -90px;} /* overrides the 1023px block's -24px for this narrower (Mobile) side padding */
     .about-stats{grid-template-columns:1fr 1fr;}
     .about-values{grid-template-columns:1fr;}
     .contact-methods{grid-template-columns:1fr;}
@@ -878,24 +942,6 @@
     .share-overlay{align-items:flex-end;padding:0;}
     .share-modal{max-width:100%;width:100%;border-radius:20px 20px 0 0;padding:14px 20px 26px;}
     .share-modal .howit-handle{display:block;width:38px;height:4px;background:var(--line);border-radius:100px;margin:0 auto 14px;}
-
-    /* ---- shared: sidebar becomes a slim top bar + sticky bottom nav ---- */
-    .app-shell{display:block;min-height:0;}
-    .sidebar{
-      flex-direction:row;align-items:center;justify-content:space-between;
-      border-right:none;border-bottom:1px solid var(--line);padding:14px 18px;
-    }
-    .sidebar .snav, .sidebar .side-cta{display:none;}
-    .main{padding:18px 18px 90px;}
-    .m-bottomnav{
-      display:flex;position:sticky;bottom:0;left:0;right:0;
-      background:#fff;border-top:1px solid var(--line);
-      padding:9px 6px 14px;gap:2px;z-index:30;
-    }
-    .main > .m-bottomnav{margin:0 -18px -90px;}
-    .m-bottomnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:700;color:var(--ink-soft);cursor:pointer;}
-    .m-bottomnav a .ic{font-size:17px;}
-    .m-bottomnav a.on{color:var(--brand);}
 
     /* ---- dashboard ---- */
     .kpi-row{grid-template-columns:repeat(2,1fr);gap:10px;}
@@ -1563,7 +1609,7 @@
     <!-- ============ WORKBENCH ============ -->
     <!-- ============ CATEGORY SELECT ============ -->
     <div class="screen" data-screen="category-select">
-      <div class="picker-shell">
+      <div class="picker-shell has-bottomnav">
         <div class="picker-head">
           <button class="back" onclick="goBack()">← 返回</button>
           <h1>选一个 Category</h1>
@@ -1585,6 +1631,13 @@
           <div class="picker-cat-card" style="background:#F3E8FF;" onclick="selectCategory('personality')">
             <div class="e">🧬</div><div class="n">心理测试</div><div class="s">了解你自己</div>
           </div>
+        </div>
+
+        <div class="m-bottomnav">
+          <a onclick="go('dashboard')"><span class="ic">🏠</span>首页</a>
+          <a class="on" onclick="go('category-select')"><span class="ic">➕</span>创建</a>
+          <a onclick="go('library')"><span class="ic">📁</span>我的</a>
+          <a onclick="go('profile')"><span class="ic">👤</span>我的主页</a>
         </div>
       </div>
     </div>
@@ -1613,7 +1666,7 @@
         <a onclick="go('login')">登录</a>
       </div>
 
-      <div class="picker-shell" style="max-width:680px;">
+      <div class="picker-shell has-bottomnav" style="max-width:680px;">
         <div class="picker-head">
           <h1>发现好玩的 Game</h1>
           <p>平台题库的 Game，任何人都能直接玩，不需要注册。朋友之间创建的 Quiz 需要专属链接才能玩到</p>
@@ -1657,18 +1710,32 @@
           <div class="t"><div class="n">How Strong Is Your Connection?</div><div class="d">心理测试 · 平台题库</div></div>
           <div class="plays">6,920 次玩过</div>
         </div>
+
+        <div class="m-bottomnav">
+          <a onclick="go('dashboard')"><span class="ic">🏠</span>首页</a>
+          <a onclick="go('category-select')"><span class="ic">➕</span>创建</a>
+          <a onclick="go('library')"><span class="ic">📁</span>我的</a>
+          <a onclick="go('profile')"><span class="ic">👤</span>我的主页</a>
+        </div>
       </div>
     </div>
 
     <!-- ============ GAME TYPE SELECT (within a category) ============ -->
     <div class="screen" data-screen="gametype-select">
-      <div class="picker-shell">
+      <div class="picker-shell has-bottomnav">
         <div class="picker-head">
           <button class="back" onclick="go('category-select')">← 返回 Category</button>
           <h1 id="gtsCatTitle">Quiz</h1>
           <p id="gtsSubtitle">选一个 Game Type，系统会加载对应的题目模板</p>
         </div>
         <div id="gtsList"></div>
+
+        <div class="m-bottomnav">
+          <a onclick="go('dashboard')"><span class="ic">🏠</span>首页</a>
+          <a class="on" onclick="go('category-select')"><span class="ic">➕</span>创建</a>
+          <a onclick="go('library')"><span class="ic">📁</span>我的</a>
+          <a onclick="go('profile')"><span class="ic">👤</span>我的主页</a>
+        </div>
       </div>
     </div>
 
@@ -1676,13 +1743,20 @@
          normal gametype-intro pattern applies, so this sits between gametype-select and the player
          landing — picking an operation lands here, picking a difficulty starts that specific game. ============ -->
     <div class="screen" data-screen="math-difficulty">
-      <div class="picker-shell">
+      <div class="picker-shell has-bottomnav">
         <div class="picker-head">
           <button class="back" onclick="go('gametype-select')">← 返回 Math</button>
           <h1 id="mdOpTitle">加法</h1>
           <p>选一个难度——位数越大，每题倒计时越长</p>
         </div>
         <div id="mdList"></div>
+
+        <div class="m-bottomnav">
+          <a onclick="go('dashboard')"><span class="ic">🏠</span>首页</a>
+          <a class="on" onclick="go('category-select')"><span class="ic">➕</span>创建</a>
+          <a onclick="go('library')"><span class="ic">📁</span>我的</a>
+          <a onclick="go('profile')"><span class="ic">👤</span>我的主页</a>
+        </div>
       </div>
     </div>
 
@@ -1690,19 +1764,26 @@
          series (47 + ? = 73 instead of 47 + 26 = ?). Reuses the exact same picker-shell/gt-list-card
          markup as Math's difficulty screen above, with its own screen id/state so Basic Math is untouched. ============ -->
     <div class="screen" data-screen="missing-difficulty">
-      <div class="picker-shell">
+      <div class="picker-shell has-bottomnav">
         <div class="picker-head">
           <button class="back" onclick="go('gametype-select')">← 返回 Math</button>
           <h1 id="mdMissingOpTitle">混合</h1>
           <p>选一个难度——位数越大，每题倒计时越长</p>
         </div>
         <div id="mdMissingList"></div>
+
+        <div class="m-bottomnav">
+          <a onclick="go('dashboard')"><span class="ic">🏠</span>首页</a>
+          <a class="on" onclick="go('category-select')"><span class="ic">➕</span>创建</a>
+          <a onclick="go('library')"><span class="ic">📁</span>我的</a>
+          <a onclick="go('profile')"><span class="ic">👤</span>我的主页</a>
+        </div>
       </div>
     </div>
 
     <!-- ============ GAME TYPE INTRO: shown before creating, leads into creator-name step then the editor ============ -->
     <div class="screen" data-screen="gametype-intro">
-      <div class="player-stage">
+      <div class="player-stage has-bottomnav">
         <div class="center-card">
           <button class="center-card-close" onclick="goBack()">✕</button>
           <div class="p-landing" style="text-align:center;">
@@ -1722,6 +1803,13 @@
               <button class="howit-trigger" onclick="openHowIt()">❔ How does this work?</button>
             </div>
           </div>
+        </div>
+
+        <div class="m-bottomnav">
+          <a onclick="go('dashboard')"><span class="ic">🏠</span>首页</a>
+          <a class="on" onclick="go('category-select')"><span class="ic">➕</span>创建</a>
+          <a onclick="go('library')"><span class="ic">📁</span>我的</a>
+          <a onclick="go('profile')"><span class="ic">👤</span>我的主页</a>
         </div>
       </div>
     </div>
@@ -2038,13 +2126,6 @@
           </div>
           <div class="live-note"><span class="live-dot"></span>编辑内容会同步更新</div>
         </div>
-      </div>
-
-      <div class="m-bottomnav">
-        <a onclick="go('dashboard')"><span class="ic">🏠</span>首页</a>
-        <a class="on"><span class="ic">➕</span>创建</a>
-        <a onclick="go('library')"><span class="ic">📁</span>我的</a>
-        <a onclick="go('profile')"><span class="ic">👤</span>我的主页</a>
       </div>
     </div>
 
@@ -2518,7 +2599,7 @@
 
     <!-- ============ HISTORY DETAIL: accurate summary for the specific entry you clicked ============ -->
     <div class="screen" data-screen="history-detail">
-      <div class="player-stage">
+      <div class="player-stage has-bottomnav">
         <div class="center-card" style="text-align:center;">
           <button class="back" onclick="go('play-history')" style="margin-bottom:20px;">← 返回游玩记录</button>
           <div class="gt-icon" id="hdIcon">🎯</div>
@@ -2533,6 +2614,13 @@
           <p id="hdNote" style="font-size:12.5px;color:var(--ink-soft);margin:0 0 20px;line-height:1.6;"></p>
 
           <button class="btn accent full" id="hdActionBtn">查看完整结果 →</button>
+        </div>
+
+        <div class="m-bottomnav">
+          <a onclick="go('dashboard')"><span class="ic">🏠</span>首页</a>
+          <a onclick="go('category-select')"><span class="ic">➕</span>创建</a>
+          <a onclick="go('library')"><span class="ic">📁</span>我的</a>
+          <a onclick="go('profile')"><span class="ic">👤</span>我的主页</a>
         </div>
       </div>
     </div>

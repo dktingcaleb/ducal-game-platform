@@ -633,11 +633,18 @@ Desktop Creator/Application navigation currently uses:
 
 This is a Page-Family Shared component.
 
+Applies at **≥1024px** (Desktop). Below that, the Mobile Bottom Navigation Foundation (§24)
+applies instead — Mobile and Tablet share that model (see
+`05-RESPONSIVE-FOUNDATION.md` §37).
+
 Do not reuse the full Creator sidebar automatically on Marketing or Player pages.
 
 ---
 
 # 24. Mobile Bottom Navigation Foundation
+
+APPROVED: Mobile and Tablet share this same navigation model
+(`05-RESPONSIVE-FOUNDATION.md` §37). This is no longer Mobile-only.
 
 Current compact Creator/Application navigation uses:
 
@@ -646,11 +653,52 @@ Current compact Creator/Application navigation uses:
 - muted inactive state
 - brand active state
 
-This is the mobile counterpart of the Creator/Application primary navigation.
+This is the Mobile **and Tablet** counterpart of the Creator/Application primary navigation
+(Sidebar, §23), triggered at **≤1023px** via a navigation-scoped container query, independent
+of the `≤700px` content-layout threshold used elsewhere.
 
 It is not a global bottom nav for every Ducal Game experience.
 
+## Screens using it
+
+```text
+Dashboard, Library, Analytics, Game Detail, Profile, Play History, Notifications, Settings,
+Games / Discovery, Category Select, Game Type Select, Math / Missing Number difficulty
+selection, Game Type Intro, Play History Detail
+```
+
+## Screens excluded
+
+```text
+Marketing/Public content (Landing, About, Contact)
+Authentication (Login, Register, Forgot Password, Claim Success)
+Legal pages
+Active Player gameplay
+Workbench / Editor (Challenge, Challenge Preview, Challenge Share)
+External/shared Player views
+System/error pages
+```
+
 Do not show it during active Player gameplay unless explicitly required.
+
+## Player-stage/Center Card hosts (Game Type Intro, Play History Detail)
+
+Game Type Intro and Play History Detail use the shared Player-stage/Center Card component
+(§27), which centers a single child via flexbox and is reused by many unrelated Player
+screens. That shared component was not modified. These two screens instead carry a page-local
+`has-bottomnav` modifier class on their own Player-stage element; the Bottom Tab styling for
+that specific combination is scoped to `.player-stage.has-bottomnav`, leaving every other
+Player-stage/Center Card usage (Player states, Link Expired, Game Offline, Claim Success,
+Login, Register, Forgot Password, Not Found) exactly as before.
+
+## Games / Discovery — single primary navigation
+
+Games keeps its Marketing nav (§51 cross-family shared nav) markup and brand mark untouched at
+Desktop widths. At ≤1023px, only the competing interactive parts of that nav (category links,
+hamburger, login/start CTA, and the mobile dropdown) are hidden via a selector scoped to the
+Games screen specifically — the Marketing nav component itself, and every other screen that
+uses it, are unaffected at any width. The Bottom Tab is the sole primary navigation on Games at
+Mobile/Tablet; the brand mark remains visible as a lightweight header.
 
 ---
 

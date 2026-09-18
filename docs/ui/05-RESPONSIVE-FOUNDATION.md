@@ -168,6 +168,10 @@ Safe migration order:
 
 This prevents responsive refactoring and visual redesign from becoming one uncontrolled change.
 
+> Exception (approved): the App Navigation Model (sidebar vs. Bottom Tab) now uses its own,
+> wider, navigation-only container query — see §37. Content-layout rules everywhere else
+> continue to follow the single `@container (max-width: 700px)` threshold described above.
+
 ---
 
 # 6. Mandatory Three-Viewport Delivery
@@ -923,7 +927,85 @@ but are allowed to use different responsive compositions appropriate to the avai
 
 ---
 
-# 37. Next Step
+# 37. Approved: Unified Mobile + Tablet App Navigation Model
+
+Status: APPROVED — implemented.
+
+## Core Rule
+
+Mobile and Tablet share the same primary navigation model for app/product screens:
+
+```text
+Mobile   0-767,    ref 390  → Bottom Tab
+Tablet   768-1023, ref 834  → Bottom Tab (same model as Mobile)
+Desktop  1024+,    ref 1280 → existing sidebar navigation, unchanged
+```
+
+This is a navigation-model decision only. It does not change Tablet content layout (grids,
+tables, spacing, card composition), which continues to follow the existing
+`@container (max-width: 700px)` content-layout threshold (§5, §35).
+
+## Breakpoint
+
+A second, navigation-scoped container query governs this, independent of the existing
+content-layout threshold:
+
+```css
+@container (max-width: 1023px) { /* sidebar -> top bar + Bottom Tab */ }
+```
+
+```text
+≤700px   content-layout rules (grids, tables, workbench outline, settings drill-down,
+         player padding, etc.) — unchanged, still Mobile-only.
+≤1023px  navigation-model rules only (sidebar ↔ top-bar, Bottom Tab visibility/placement)
+         — now Mobile + Tablet.
+```
+
+## Screens Using Bottom Tab
+
+```text
+Dashboard, Library, Analytics, Game Detail, Profile, Play History, Notifications, Settings,
+Games / Discovery, Category Select, Game Type Select, Math / Missing Number difficulty
+selection, Game Type Intro, Play History Detail
+```
+
+## Screens Excluded From Bottom Tab
+
+```text
+Landing / About / Contact
+Login / Register / Forgot Password / Claim Success
+Legal pages
+Active Player gameplay (question/result screens)
+Workbench / Editor (Challenge, Challenge Preview, Challenge Share)
+External/shared Player views (e.g. connection-shared-view)
+System/error pages (Link Expired, Game Offline, Not Found)
+```
+
+## Implementation Notes
+
+- **Game Type Intro and Play History Detail** both use the shared `.player-stage`/`.center-card`
+  component, which centers a single child via flexbox and is reused by many unrelated Player
+  screens (Player landing/question/result states, Link Expired, Game Offline, Claim Success,
+  etc.). The shared component itself was **not** modified. Instead, these two screens add a
+  page-local modifier class (`has-bottomnav`) to their own `.player-stage` element; a rule
+  scoped to `.player-stage.has-bottomnav` (only, within the `≤1023px` navigation query)
+  switches that one host from flex-centering to a block layout with the card explicitly
+  centered via margin and the Bottom Tab reserved space below it. Every other screen using
+  `.player-stage`/`.center-card` — including Login, Register, Forgot Password, Claim Success,
+  Link Expired, Game Offline, Not Found — keeps the exact original flex-centering behavior,
+  unaffected.
+- **Games / Discovery** keeps its existing Marketing top nav (`.mkt-nav`) markup and brand mark
+  untouched at Desktop widths. At `≤1023px`, only the competing interactive nav parts (category
+  links, hamburger button, login/start CTA, and the hamburger's mobile dropdown menu) are
+  hidden via a selector scoped specifically to the Games screen
+  (`[data-screen="games"] .mkt-nav .links`, etc.) — `.mkt-nav` itself, and every other screen
+  that uses it (Landing, About, Contact, Report), are untouched at every width. The Bottom Tab
+  is the sole primary navigation on Games at Mobile/Tablet widths; the brand mark remains
+  visible as a lightweight header.
+
+---
+
+# 38. Next Step
 
 The next foundation document should define:
 
