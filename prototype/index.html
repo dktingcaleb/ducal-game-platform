@@ -3684,34 +3684,150 @@
     navGroup.appendChild(b);
   });
 
-  const playerStates = [
-    {id:'landing', label:'落地页（Quiz）'},
-    {id:'landing-iq', label:'落地页（IQ）'},
-    {id:'player-name', label:'输入玩家名称'},
-    {id:'question', label:'答题（Quiz）'},
-    {id:'question-iq', label:'答题（IQ）'},
-    {id:'result', label:'结果（Quiz · 关于某个人）'},
-    {id:'result-iq', label:'结果（IQ/Math · 平台题目）'},
-    {id:'landing-connection', label:'落地页（Connection）'},
-    {id:'question-connection', label:'答题（Connection · 48题）'},
-    {id:'result-connection', label:'结果（Connection · 个人画像）'},
-    {id:'connection-invite', label:'邀请对方一起测'},
-    {id:'result-connection-match', label:'结果（Connection · 双人匹配）'},
-    {id:'connection-shared-view', label:'对方打开分享链接看到的页面'},
-    {id:'landing-math', label:'Player_落地页_Math'},
-    {id:'question-math', label:'Player_答题_Math（含倒计时）'},
-    {id:'result-math', label:'Player_结果_Math'},
-    {id:'landing-missing', label:'Player_落地页_Missing Number'},
-    {id:'question-missing', label:'Player_答题_Missing Number（含倒计时）'},
-    {id:'result-missing', label:'Player_结果_Missing Number'},
+  /* ============================================================
+     PLAYER REVIEW NAVIGATION — Prototype Harness only (review/dev/QA tool).
+     Configures and opens the EXISTING shared Player UI (openMathGameSilent /
+     openMissingGameSilent + the existing pgo() state dispatcher) for a given
+     series/mode/difficulty/state combination. Does not duplicate or redesign
+     any Player markup, and does not touch any gameplay logic — Math, Missing
+     Number, Quiz, IQ and Connection question/scoring/result functions are
+     untouched; this only calls them with the requested configuration.
+     Grouped as: Series -> (Operation) -> (Difficulty) -> State, so switching
+     one level (e.g. difficulty) preserves the current selection on the other
+     levels (e.g. operation, state) instead of resetting the whole picker.
+     Operation/Difficulty metadata (MATH_OPS, MATH_DIFFICULTIES,
+     MISSING_DIFFICULTIES) and game-id construction (currentMathGameId,
+     currentMissingGameId) are all reused as-is from the Math/Missing Number
+     sections below — nothing here redefines them. ============================================================ */
+  const PLAYER_REVIEW_SERIES = [
+    {id:'quiz', label:'Quiz'},
+    {id:'iq', label:'IQ'},
+    {id:'connection', label:'Connection'},
+    {id:'math', label:'Basic Math'},
+    {id:'missing', label:'Missing Number'},
   ];
-  playerStates.forEach(p=>{
-    const b = document.createElement('button');
-    b.textContent = p.label;
-    b.dataset.p = p.id;
-    b.onclick = ()=>pgo(p.id);
-    subNav.appendChild(b);
-  });
+  const PLAYER_REVIEW_STATES = {
+    quiz: [
+      {id:'landing', label:'Landing'},
+      {id:'player-name', label:'Player Name'},
+      {id:'question', label:'Question'},
+      {id:'result', label:'Result'},
+    ],
+    iq: [
+      {id:'landing-iq', label:'Landing'},
+      {id:'question-iq', label:'Question'},
+      {id:'result-iq', label:'Result'},
+    ],
+    connection: [
+      {id:'landing-connection', label:'Landing'},
+      {id:'question-connection', label:'Question'},
+      {id:'result-connection', label:'Personal Result'},
+      {id:'connection-invite', label:'Invite Partner'},
+      {id:'result-connection-match', label:'Match Result'},
+      {id:'connection-shared-view', label:'Shared Result View'},
+    ],
+    math: [
+      {id:'landing-math', label:'Landing'},
+      {id:'question-math', label:'Question'},
+      {id:'result-math', label:'Result'},
+    ],
+    missing: [
+      {id:'landing-missing', label:'Landing'},
+      {id:'question-missing', label:'Question'},
+      {id:'result-missing', label:'Result'},
+    ],
+  };
+  // display-only English labels for this dev tool; product-facing op/diff labels (Chinese) are
+  // untouched in MATH_OPS / MATH_DIFFICULTIES / MISSING_DIFFICULTIES themselves.
+  const PLAYER_REVIEW_OP_LABELS = {add:'Addition', sub:'Subtraction', mul:'Multiplication', div:'Division', mixed:'Mixed'};
+  const PLAYER_REVIEW_MATH_DIFF_LABELS = {d2:'2-Digit', d3:'3-Digit', d4:'4-Digit'};
+  const PLAYER_REVIEW_MISSING_DIFF_LABELS = {'2_digit':'2-Digit', '3_digit':'3-Digit', '4_digit':'4-Digit'};
+
+  let prSeries = 'quiz';
+  let prOpId = 'add';
+  let prDiffId = null;
+  let prStateIdx = 0;
+
+  function prRow(items, activeId, onSelect){
+    const row = document.createElement('div');
+    row.className = 'pr-row';
+    items.forEach(it => {
+      const b = document.createElement('button');
+      b.textContent = it.label;
+      b.dataset.pr = it.id;
+      if (it.id === activeId) b.classList.add('active');
+      b.onclick = () => onSelect(it.id);
+      row.appendChild(b);
+    });
+    return row;
+  }
+
+  function prSelectSeries(seriesId){
+    prSeries = seriesId;
+    if (seriesId === 'math') { prOpId = 'add'; prDiffId = 'd2'; }
+    else if (seriesId === 'missing') { prOpId = 'add'; prDiffId = '2_digit'; }
+    prStateIdx = 0;
+    prRender();
+    prOpen();
+  }
+  function prSelectOp(opId){ prOpId = opId; prRender(); prOpen(); }
+  function prSelectDiff(diffId){ prDiffId = diffId; prRender(); prOpen(); }
+  function prSelectState(stateId){
+    const states = PLAYER_REVIEW_STATES[prSeries];
+    prStateIdx = states.findIndex(s => s.id === stateId);
+    prRender();
+    prOpen();
+  }
+
+  function prRender(){
+    subNav.innerHTML = '';
+    subNav.appendChild(prRow(PLAYER_REVIEW_SERIES, prSeries, prSelectSeries));
+
+    const isMathFamily = prSeries === 'math' || prSeries === 'missing';
+    if (isMathFamily) {
+      subNav.appendChild(prRow(MATH_OPS.map(o => ({id: o.id, label: PLAYER_REVIEW_OP_LABELS[o.id]})), prOpId, prSelectOp));
+      const diffs = prSeries === 'math' ? MATH_DIFFICULTIES : MISSING_DIFFICULTIES;
+      const diffLabels = prSeries === 'math' ? PLAYER_REVIEW_MATH_DIFF_LABELS : PLAYER_REVIEW_MISSING_DIFF_LABELS;
+      subNav.appendChild(prRow(diffs.map(d => ({id: d.id, label: diffLabels[d.id]})), prDiffId, prSelectDiff));
+    }
+
+    const states = PLAYER_REVIEW_STATES[prSeries];
+    const stateRow = prRow(states, states[prStateIdx].id, prSelectState);
+    stateRow.querySelectorAll('button').forEach(b => { b.dataset.p = b.dataset.pr; }); // keeps this row in sync with pgo()'s existing #subNav active-state highlighting
+    subNav.appendChild(stateRow);
+
+    const config = document.createElement('div');
+    config.className = 'pr-config';
+    subNav.appendChild(config);
+    prUpdateConfigLabel();
+  }
+
+  function prOpen(){
+    const states = PLAYER_REVIEW_STATES[prSeries];
+    const targetStateId = states[prStateIdx].id;
+    if (prSeries === 'math') {
+      openMathGameSilent(prOpId, prDiffId);
+    } else if (prSeries === 'missing') {
+      openMissingGameSilent(prOpId, prDiffId);
+    }
+    go('player');
+    pgo(targetStateId);
+    prUpdateConfigLabel();
+  }
+
+  function prUpdateConfigLabel(){
+    const el = subNav.querySelector('.pr-config');
+    if (!el) return;
+    const seriesLabel = PLAYER_REVIEW_SERIES.find(s => s.id === prSeries).label;
+    const stateLabel = PLAYER_REVIEW_STATES[prSeries][prStateIdx].label;
+    if (prSeries === 'math') {
+      el.textContent = 'Series: Basic Math | Mode: ' + PLAYER_REVIEW_OP_LABELS[prOpId] + ' | Difficulty: ' + PLAYER_REVIEW_MATH_DIFF_LABELS[prDiffId] + ' | State: ' + stateLabel + ' | Game ID: ' + currentMathGameId;
+    } else if (prSeries === 'missing') {
+      el.textContent = 'Series: Missing Number | Mode: ' + PLAYER_REVIEW_OP_LABELS[prOpId] + ' | Difficulty: ' + PLAYER_REVIEW_MISSING_DIFF_LABELS[prDiffId] + ' | State: ' + stateLabel + ' | Game ID: ' + currentMissingGameId;
+    } else {
+      el.textContent = 'Series: ' + seriesLabel + ' | State: ' + stateLabel;
+    }
+  }
 
   let currentScreenId = 'landing';
   let previousScreenId = 'landing';
@@ -6692,6 +6808,7 @@
     go('legal');
     addrBar.textContent = doc.addr; // same override pattern already used by the workbench/workbench-locked harness buttons
   }
+  prRender(); // build the Player Review Navigation now that MATH_OPS/MATH_DIFFICULTIES/MISSING_DIFFICULTIES exist; #subNav stays hidden until the Player screen is opened
   go('landing');
 </script>
 <script src="./prototype-harness.js"></script>
