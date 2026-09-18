@@ -681,12 +681,24 @@ System/error pages
 
 Do not show it during active Player gameplay unless explicitly required.
 
-## Known gaps (tracked in `05-RESPONSIVE-FOUNDATION.md` §37)
+## Player-stage/Center Card hosts (Game Type Intro, Play History Detail)
 
-- Game Type Intro and Play History Detail are approved for inclusion but not yet implemented,
-  pending a scoped update to the shared Player-stage/Center Card component.
-- Games / Discovery must not show this Bottom Tab and the Marketing top nav at the same
-  time — currently both render simultaneously; resolution pending.
+Game Type Intro and Play History Detail use the shared Player-stage/Center Card component
+(§27), which centers a single child via flexbox and is reused by many unrelated Player
+screens. That shared component was not modified. These two screens instead carry a page-local
+`has-bottomnav` modifier class on their own Player-stage element; the Bottom Tab styling for
+that specific combination is scoped to `.player-stage.has-bottomnav`, leaving every other
+Player-stage/Center Card usage (Player states, Link Expired, Game Offline, Claim Success,
+Login, Register, Forgot Password, Not Found) exactly as before.
+
+## Games / Discovery — single primary navigation
+
+Games keeps its Marketing nav (§51 cross-family shared nav) markup and brand mark untouched at
+Desktop widths. At ≤1023px, only the competing interactive parts of that nav (category links,
+hamburger, login/start CTA, and the mobile dropdown) are hidden via a selector scoped to the
+Games screen specifically — the Marketing nav component itself, and every other screen that
+uses it, are unaffected at any width. The Bottom Tab is the sole primary navigation on Games at
+Mobile/Tablet; the brand mark remains visible as a lightweight header.
 
 ---
 

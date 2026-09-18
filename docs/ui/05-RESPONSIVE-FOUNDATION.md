@@ -929,7 +929,7 @@ but are allowed to use different responsive compositions appropriate to the avai
 
 # 37. Approved: Unified Mobile + Tablet App Navigation Model
 
-Status: APPROVED — implementation in progress (see Known Implementation Gaps below).
+Status: APPROVED — implemented.
 
 ## Core Rule
 
@@ -981,19 +981,27 @@ External/shared Player views (e.g. connection-shared-view)
 System/error pages (Link Expired, Game Offline, Not Found)
 ```
 
-## Known Implementation Gaps
+## Implementation Notes
 
-The rule above is approved. As of the current implementation:
-
-- **Game Type Intro and Play History Detail** are approved for Bottom Tab but not yet
-  implemented — both currently use the shared `.player-stage`/`.center-card` component, which
-  centers a single child via flexbox and cannot host a Bottom Tab sibling without a scoped
-  update to that shared component (used by many unrelated Player screens). Follow-up task
-  required; do not add the Bottom Tab to these screens without resolving that first.
-- **Games / Discovery** currently shows both the Marketing top nav (`.mkt-nav`) and the Bottom
-  Tab at the same time on Mobile/Tablet, which does not yet satisfy the "no duplicate
-  competing primary navigation" requirement. Follow-up task required to decide which
-  navigation should be shown.
+- **Game Type Intro and Play History Detail** both use the shared `.player-stage`/`.center-card`
+  component, which centers a single child via flexbox and is reused by many unrelated Player
+  screens (Player landing/question/result states, Link Expired, Game Offline, Claim Success,
+  etc.). The shared component itself was **not** modified. Instead, these two screens add a
+  page-local modifier class (`has-bottomnav`) to their own `.player-stage` element; a rule
+  scoped to `.player-stage.has-bottomnav` (only, within the `≤1023px` navigation query)
+  switches that one host from flex-centering to a block layout with the card explicitly
+  centered via margin and the Bottom Tab reserved space below it. Every other screen using
+  `.player-stage`/`.center-card` — including Login, Register, Forgot Password, Claim Success,
+  Link Expired, Game Offline, Not Found — keeps the exact original flex-centering behavior,
+  unaffected.
+- **Games / Discovery** keeps its existing Marketing top nav (`.mkt-nav`) markup and brand mark
+  untouched at Desktop widths. At `≤1023px`, only the competing interactive nav parts (category
+  links, hamburger button, login/start CTA, and the hamburger's mobile dropdown menu) are
+  hidden via a selector scoped specifically to the Games screen
+  (`[data-screen="games"] .mkt-nav .links`, etc.) — `.mkt-nav` itself, and every other screen
+  that uses it (Landing, About, Contact, Report), are untouched at every width. The Bottom Tab
+  is the sole primary navigation on Games at Mobile/Tablet widths; the brand mark remains
+  visible as a lightweight header.
 
 ---
 
