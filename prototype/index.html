@@ -668,6 +668,7 @@
   .ans-btn.correct{border-color:var(--mint);background:#E3FBF5;}
   .ans-btn.wrong{border-color:#FF6B6B;background:#FFECEC;}
   #pMathAnsContainer.answered .ans-btn{pointer-events:none;}
+  #pMissingAnsContainer.answered .ans-btn{pointer-events:none;} /* Missing Number Challenge — same lock-after-answer behavior as Basic Math, new container id */
 
   .already-played-box{background:var(--mint-tint);border-radius:16px;padding:16px;margin-bottom:16px;text-align:left;}
   .already-played-box .row1{display:flex;align-items:center;gap:12px;}
@@ -1692,6 +1693,20 @@
           <p>选一个难度——位数越大，每题倒计时越长</p>
         </div>
         <div id="mdList"></div>
+      </div>
+    </div>
+
+    <!-- ============ MISSING NUMBER CHALLENGE — difficulty picker for the new, separate Missing Number
+         series (47 + ? = 73 instead of 47 + 26 = ?). Reuses the exact same picker-shell/gt-list-card
+         markup as Math's difficulty screen above, with its own screen id/state so Basic Math is untouched. ============ -->
+    <div class="screen" data-screen="missing-difficulty">
+      <div class="picker-shell">
+        <div class="picker-head">
+          <button class="back" onclick="go('gametype-select')">← 返回 Math</button>
+          <h1 id="mdMissingOpTitle">混合</h1>
+          <p>选一个难度——位数越大，每题倒计时越长</p>
+        </div>
+        <div id="mdMissingList"></div>
       </div>
     </div>
 
@@ -3294,6 +3309,106 @@
           </div>
         </div>
 
+        <!-- ============ MISSING NUMBER CHALLENGE — new, separate series from Math Basic Series above.
+             Mechanic differs (missing operand, e.g. 47 + ? = 73, result stays visible) so it owns its
+             own player-card states/ids, but reuses every shared class (player-card, p-landing, qp-top,
+             qmath-timer, play-q, ans-btn, result-wrap, ring, stat-row, already-played-box, collapse)
+             unchanged. Mixed only for now — Add/Sub/Mul/Div Missing Number stay locked in the mode list. ============ -->
+        <div class="player-card" data-p="landing-missing" style="display:none;">
+          <div class="p-landing">
+            <div class="avatar-lg" id="lmMissingIcon" style="background:linear-gradient(160deg,#8A6CF7,var(--accent));">🔀</div>
+            <h1 id="lmMissingTitle">混合数字填空 · 2 位数</h1>
+            <p id="lmMissingDesc">数字和答案最多到 99，算式中会缺一个数字。算得越快，加分越多。</p>
+            <div class="stat-row">
+              <div class="st"><div class="n">20</div><div class="l">道题</div></div>
+              <div class="st"><div class="n" id="lmMissingSeconds">10 秒</div><div class="l">每题倒计时</div></div>
+              <div class="st"><div class="n">4</div><div class="l">个选项</div></div>
+            </div>
+
+            <div id="lmMissingNotPlayed">
+              <button class="btn accent full" onclick="pGoToNameEntry('question-missing')">开始挑战 →</button>
+              <p style="font-size:11.5px;margin-top:12px;">无需注册，直接开始 · 第一次挑战免费</p>
+            </div>
+
+            <div id="lmMissingPlayedBox" style="display:none;text-align:left;">
+              <div class="already-played-box">
+                <div class="row1">
+                  <div class="e">🎉</div>
+                  <div class="t"><div class="h">你已经玩过这个挑战了</div><div class="d" id="lmMissingPlayedNote">上次得分 <b id="lmMissingYourScore">21,140</b>（个人最佳 <b id="lmMissingYourBest">21,140</b>）——广告解锁次数不限，随时可以再来</div></div>
+                </div>
+                <button class="btn accent" onclick="startMissingGame()">🎬 观看广告，再挑战一次</button>
+              </div>
+            </div>
+
+            <div class="collapse">
+              <button class="collapse-toggle" onclick="toggleCollapse(this)">
+                <span>🏆 查看完整排行榜</span><span class="chev">⌄</span>
+              </button>
+              <div class="collapse-body" id="lmMissingLeaderboard"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="player-card" data-p="question-missing" style="display:none;">
+          <div class="qp-top">
+            <div class="progress-track"><div class="progress-fill" id="pMissingProgressFill" style="width:5%;background:var(--sun);"></div></div>
+            <div class="qp-step" id="pMissingStep">1 / 20</div>
+            <button class="qp-exit" onclick="openQuitConfirm()">✕</button>
+          </div>
+          <div class="qmath-timer">
+            <div class="track"><div class="fill" id="pMissingTimerFill" style="width:100%;"></div></div>
+            <div class="num" id="pMissingTimerNum">⏱ 10s</div>
+          </div>
+          <div class="play-q" id="pMissingQCard" style="background:linear-gradient(160deg,#8A6CF7,var(--accent));">
+            <h2 id="pMissingQText">47 + ? = 73</h2>
+          </div>
+          <div id="pMissingTimeUp" style="display:none;text-align:center;font-weight:800;color:#FF6B6B;font-size:13px;margin:-6px 0 12px;">⏰ 时间到，这题记 0 分</div>
+          <div id="pMissingAnsContainer"></div>
+        </div>
+
+        <div class="player-card" data-p="result-missing" style="display:none;">
+          <div class="result-wrap">
+            <div class="ring" id="rmMissingRing"><div class="num"><span id="rmMissingScorePct">90%</span></div></div>
+            <h2 id="rmMissingTitle">混合数字填空 · 2 位数</h2>
+            <p id="rmMissingVerdict">心算相当不错！🧮</p>
+
+            <div style="font-size:34px;font-weight:800;font-family:'Baloo 2',sans-serif;color:var(--brand-dark);margin:6px 0 2px;" id="rmMissingFinalScore">21,140</div>
+            <p style="font-size:11.5px;color:var(--ink-soft);margin:0 0 18px;">Final Score（满分 24,000）</p>
+
+            <div class="stat-row">
+              <div class="st"><div class="n" id="rmMissingCorrect">18 / 20</div><div class="l">答对</div></div>
+              <div class="st"><div class="n" id="rmMissingAvgTime">4.2s</div><div class="l">平均答题时间</div></div>
+              <div class="st"><div class="n" id="rmMissingStreak">7</div><div class="l">最佳连对</div></div>
+            </div>
+            <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-4px;">排行榜第 <b id="rmMissingRank">47</b> 名 · 个人最佳 <b id="rmMissingBest">21,140</b></p>
+
+            <div id="rmMissingBreakdown" style="display:none;text-align:left;background:var(--bg);border-radius:16px;padding:15px 17px;margin:14px 0;">
+              <div style="font-size:11px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">按运算类型拆分</div>
+              <div id="rmMissingRows"></div>
+            </div>
+
+            <div class="already-played-box" style="margin-top:6px;">
+              <div class="row1">
+                <div class="e">🎬</div>
+                <div class="t"><div class="h">还想再挑战一次？</div><div class="d">题目顺序、选项位置和缺的数字位置都会重新打乱——广告解锁次数不限，随时可以再来</div></div>
+              </div>
+              <button class="btn accent" onclick="startMissingGame()">🎬 观看广告，再挑战一次</button>
+            </div>
+
+            <div class="collapse">
+              <button class="collapse-toggle" onclick="toggleCollapse(this)">
+                <span>🏆 查看完整排行榜</span><span class="chev">⌄</span>
+              </button>
+              <div class="collapse-body" id="rmMissingLeaderboard"></div>
+            </div>
+
+            <div class="btn-row" style="margin-top:16px;">
+              <button class="btn accent" onclick="copyLinkFeedback(this, 'ducalgame.com/g/missing_mixed_2_digit')">分享结果</button>
+              <button class="btn ghost" onclick="go('missing-difficulty')">换个难度</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -3430,6 +3545,7 @@
     {id:'category-select', label:'②a 选 Category', addr:'ducalgame.com/new'},
     {id:'gametype-select', label:'②b 选 Game Type', addr:'ducalgame.com/new/quiz'},
     {id:'math-difficulty', label:'②b-2 Math 选难度（位数）', addr:'ducalgame.com/new/math/add'},
+    {id:'missing-difficulty', label:'②b-3 Missing Number 选难度（位数）', addr:'ducalgame.com/new/math/missing/mixed'},
     {id:'gametype-intro', label:'②c Game Type 介绍', addr:'ducalgame.com/new/quiz/how-well'},
     {id:'creator-name', label:'②d 填写创建者名字', addr:'ducalgame.com/new/quiz/how-well/name'},
     {id:'workbench', label:'②e 创建工作台（新建·可编辑）', addr:'ducalgame.com/create/quiz'},
@@ -3500,6 +3616,9 @@
     {id:'landing-math', label:'Player_落地页_Math'},
     {id:'question-math', label:'Player_答题_Math（含倒计时）'},
     {id:'result-math', label:'Player_结果_Math'},
+    {id:'landing-missing', label:'Player_落地页_Missing Number'},
+    {id:'question-missing', label:'Player_答题_Missing Number（含倒计时）'},
+    {id:'result-missing', label:'Player_结果_Missing Number'},
   ];
   playerStates.forEach(p=>{
     const b = document.createElement('button');
@@ -3592,6 +3711,9 @@
     if(id==='math-difficulty'){
       renderMathDifficultyList(currentMathOpId || 'add');
     }
+    if(id==='missing-difficulty'){
+      renderMissingDifficultyList(currentMissingOpId || 'mixed');
+    }
   }
   function goBack(){
     go(previousScreenId || 'landing');
@@ -3614,6 +3736,7 @@
     document.querySelectorAll('#subNav button').forEach(el=>el.classList.toggle('active', el.dataset.p===id));
     window.scrollTo(0, 0);
     if (id !== 'question-math') clearMathTimer(); // safety net: any navigation away from the math question screen stops its countdown, so it can't fire against a later session's state
+    if (id !== 'question-missing') clearMissingTimer(); // same safety net for the separate Missing Number Challenge timer
     if (id === 'question') {
       playerIndex = 0;
       playerAnswers = [];
@@ -3649,6 +3772,15 @@
     }
     if (id === 'result-math') {
       renderMathResult();
+    }
+    if (id === 'landing-missing') {
+      renderMissingLanding();
+    }
+    if (id === 'question-missing') {
+      startMissingQuestionFlow();
+    }
+    if (id === 'result-missing') {
+      renderMissingResult();
     }
   }
 
@@ -4651,6 +4783,373 @@
     return html;
   }
 
+  /* =====================================================================
+     MISSING NUMBER CHALLENGE — new, separate series from the Math Basic
+     Series above. Same digit ceilings / per-question countdown per
+     difficulty (2/3/4 位数 → 99/999/9999, 10/20/30s), but the UNKNOWN is a
+     missing operand instead of the result: "47 + ? = 73" / "? + 26 = 73",
+     result stays visible. Reuses Basic Math's pure generators (buildQuestion,
+     genFactorPair, randInt, shuffleWithRng, shuffleArray, seedFromString,
+     mathOpSymbol, mathOpById/MATH_OPS for operator name/icon/gradient,
+     MATH_OP_LABELS, MATH_DEMO_NAMES, mathVerdictText) unmodified/read-only.
+     Owns entirely separate state, game ids, and render functions so no
+     existing Math mode's behavior is touched. Mixed only for now (5 add +
+     5 sub + 5 mul + 5 div, interleaved) — Addition/Subtraction/
+     Multiplication/Division Missing Number stay locked in the mode list
+     until separately approved and built.
+     ===================================================================== */
+  const MISSING_DIFFICULTIES = [
+    {id:'2_digit', maxValue:99,   label:'2 位数', seconds:10},
+    {id:'3_digit', maxValue:999,  label:'3 位数', seconds:20},
+    {id:'4_digit', maxValue:9999, label:'4 位数', seconds:30},
+  ];
+  function missingDiffById(id){ return MISSING_DIFFICULTIES.find(d=>d.id===id); }
+
+  // Public game-id slugs use full operation words (missing_addition_2_digit, etc.), while internal
+  // opId stays the short Basic-Math code (add/sub/mul/div/mixed) so MATH_OPS/mathOpById lookups —
+  // name, icon, gradient — keep working unchanged for both series.
+  const MISSING_GAME_ID_SLUGS = {add:'addition', sub:'subtraction', mul:'multiplication', div:'division', mixed:'mixed'};
+
+  function buildMissingNumberQuestion(rng, opId, maxValue){ // hides exactly one operand; result (base.answer) always stays visible
+    const base = buildQuestion(rng, opId, maxValue); // reuse Basic Math's number generation/range constraints as-is
+    const hideFirst = rng() < 0.5;
+    const missingValue = hideFirst ? base.a : base.b;
+    const symbol = mathOpSymbol(opId);
+    const text = hideFirst
+      ? ('? ' + symbol + ' ' + base.b + ' = ' + base.answer)
+      : (base.a + ' ' + symbol + ' ? = ' + base.answer);
+    const candidates = new Set();
+    const push = (v) => { if (v >= 0 && v <= maxValue && v !== missingValue) candidates.add(v); };
+    push(missingValue + 1); push(missingValue - 1); push(missingValue + 10); push(missingValue - 10);
+    let guard = 0;
+    while (candidates.size < 6 && guard < 40) {
+      guard++;
+      const delta = randInt(rng, 1, Math.max(3, Math.round(missingValue * 0.2) + 3));
+      push(rng() < 0.5 ? missingValue - delta : missingValue + delta);
+    }
+    const distractors = shuffleWithRng(Array.from(candidates), rng).slice(0, 3);
+    return {opId: opId, text: text, answer: missingValue, distractors: distractors};
+  }
+
+  const missingQuestionCache = {};
+
+  function generateMissingOpQuestions(opId, diffId, count, seedSuffix){
+    const cacheKey = opId + '-' + diffId + '-' + seedSuffix + '-' + count;
+    if (missingQuestionCache[cacheKey]) return missingQuestionCache[cacheKey];
+    const diff = missingDiffById(diffId);
+    const rng = seedFromString('missinggame-' + opId + '-' + diffId + '-' + seedSuffix);
+    const out = [];
+    for (let i = 0; i < count; i++) out.push(buildMissingNumberQuestion(rng, opId, diff.maxValue));
+    missingQuestionCache[cacheKey] = out;
+    return out;
+  }
+
+  function generateMissingMixedQuestions(diffId){ // exactly 5+5+5+5, interleaved at render/order-shuffle time
+    const cacheKey = 'mixed-' + diffId;
+    if (missingQuestionCache[cacheKey]) return missingQuestionCache[cacheKey];
+    let qs = [];
+    ['add', 'sub', 'mul', 'div'].forEach(op => {
+      qs = qs.concat(generateMissingOpQuestions(op, diffId, 5, 'mixed-v1'));
+    });
+    missingQuestionCache[cacheKey] = qs;
+    return qs;
+  }
+
+  function generateMissingNumberQuestions(opId, diffId){
+    if (opId === 'mixed') return generateMissingMixedQuestions(diffId);
+    return generateMissingOpQuestions(opId, diffId, 20, 'v1');
+  }
+
+  /* ---- current game state (fully separate from Basic Math's math* globals above) ---- */
+  let currentMissingOpId = 'mixed';
+  let currentMissingDiffId = '2_digit';
+  let currentMissingGameId = 'missing_mixed_2_digit';
+  let missingPool = [];
+  let missingPlayOrder = [];
+  let missingDisplayOptions = [];
+  let missingIndex = 0;
+  let missingAnswers = [];
+  let missingTimerId = null;
+  let missingAdvanceTimeoutId = null;
+  let missingTimeLeft = 0;
+  const missingAttemptUsed = {};
+  const missingPlayedGames = {};
+  const missingPersonalBest = {};
+
+  function renderMissingDifficultyList(opId){
+    const op = mathOpById(opId);
+    currentMissingOpId = opId;
+    document.getElementById('mdMissingOpTitle').textContent = op.name + ' ' + op.icon;
+    let html = '';
+    MISSING_DIFFICULTIES.forEach(d => {
+      const gid = 'missing_' + MISSING_GAME_ID_SLUGS[op.id] + '_' + d.id;
+      const played = missingPlayedGames[gid];
+      const qCount = op.id === 'mixed' ? '20 题（各运算各 5 题）' : '20 题';
+      html += '<div class="gt-list-card" onclick="openMissingGame(\'' + op.id + '\',\'' + d.id + '\')">'
+            + '<div class="ic">' + op.icon + '</div>'
+            + '<div class="t"><div class="n">' + d.label + '</div><div class="d">' + qCount + ' · 每题倒计时 ' + d.seconds + ' 秒' + (played ? ' · 你已经玩过' : '') + '</div></div>'
+            + '<div class="go">▶</div></div>';
+    });
+    document.getElementById('mdMissingList').innerHTML = html;
+  }
+
+  function openMissingOperation(opId){
+    renderMissingDifficultyList(opId);
+    go('missing-difficulty');
+  }
+
+  function openMissingGame(opId, diffId){
+    currentMissingOpId = opId;
+    currentMissingDiffId = diffId;
+    currentMissingGameId = 'missing_' + MISSING_GAME_ID_SLUGS[opId] + '_' + diffId;
+    missingPool = generateMissingNumberQuestions(opId, diffId);
+    go('player');
+    pgo('landing-missing');
+  }
+
+  function openMissingGameSilent(opId, diffId){ // populate state without navigating — fallback for direct subnav testing
+    currentMissingOpId = opId;
+    currentMissingDiffId = diffId;
+    currentMissingGameId = 'missing_' + MISSING_GAME_ID_SLUGS[opId] + '_' + diffId;
+    missingPool = generateMissingNumberQuestions(opId, diffId);
+  }
+
+  function missingDigitRuleText(diffId){
+    const diff = missingDiffById(diffId);
+    return '数字和答案最多到 ' + diff.maxValue.toLocaleString() + '，算式中会缺一个数字。算得越快，加分越多。';
+  }
+
+  function renderMissingLanding(){
+    if (!missingPool.length) openMissingGameSilent('mixed', '2_digit');
+    const op = mathOpById(currentMissingOpId);
+    const diff = missingDiffById(currentMissingDiffId);
+    document.getElementById('lmMissingIcon').textContent = op.icon;
+    document.getElementById('lmMissingIcon').style.background = op.gradient;
+    document.getElementById('lmMissingTitle').textContent = op.name + '数字填空 · ' + diff.label;
+    document.getElementById('lmMissingDesc').textContent = missingDigitRuleText(currentMissingDiffId);
+    document.getElementById('lmMissingSeconds').textContent = diff.seconds + ' 秒';
+
+    const attempted = missingAttemptUsed[currentMissingGameId];
+    const played = missingPlayedGames[currentMissingGameId];
+    document.getElementById('lmMissingNotPlayed').style.display = attempted ? 'none' : 'block';
+    document.getElementById('lmMissingPlayedBox').style.display = attempted ? 'block' : 'none';
+    if (attempted) {
+      if (played) {
+        document.getElementById('lmMissingPlayedNote').innerHTML = '上次得分 <b id="lmMissingYourScore">' + played.finalScore.toLocaleString() + '</b>（个人最佳 <b id="lmMissingYourBest">' + (missingPersonalBest[currentMissingGameId] || played.finalScore).toLocaleString() + '</b>）——广告解锁次数不限，随时可以再来';
+      } else {
+        document.getElementById('lmMissingPlayedNote').textContent = '上次挑战中途退出了，没有算出有效成绩——广告解锁次数不限，随时可以再来';
+      }
+    }
+    document.getElementById('lmMissingLeaderboard').innerHTML = renderMissingLeaderboardHtml(currentMissingGameId);
+  }
+
+  function startMissingGame(){ // "开始挑战" and "watch an ad, play again" both land here
+    pgo('question-missing');
+  }
+
+  function startMissingQuestionFlow(){
+    missingAttemptUsed[currentMissingGameId] = true;
+    missingPlayOrder = shuffleArray(missingPool.map((_, i) => i));
+    missingDisplayOptions = missingPool.map(q => shuffleArray([q.answer, ...q.distractors]));
+    missingIndex = 0;
+    missingAnswers = [];
+    pRenderMissingQuestion();
+  }
+
+  function clearMissingTimer(){
+    if (missingTimerId) { clearInterval(missingTimerId); missingTimerId = null; }
+    if (missingAdvanceTimeoutId) { clearTimeout(missingAdvanceTimeoutId); missingAdvanceTimeoutId = null; }
+  }
+
+  function updateMissingTimerBar(){
+    const diff = missingDiffById(currentMissingDiffId);
+    const pct = Math.max(0, missingTimeLeft / (diff.seconds * 1000) * 100);
+    const bar = document.getElementById('pMissingTimerFill');
+    if (!bar) return;
+    bar.style.width = pct + '%';
+    bar.style.background = pct < 25 ? '#FF6B6B' : (pct < 55 ? 'var(--sun)' : 'var(--mint)');
+    document.getElementById('pMissingTimerNum').textContent = '⏱ ' + Math.ceil(missingTimeLeft / 1000) + 's';
+  }
+
+  function pRenderMissingQuestion(){
+    clearMissingTimer();
+    document.getElementById('pMissingTimeUp').style.display = 'none';
+    const diff = missingDiffById(currentMissingDiffId);
+    const qIdx = missingPlayOrder[missingIndex];
+    const q = missingPool[qIdx];
+    const op = mathOpById(currentMissingOpId === 'mixed' ? q.opId : currentMissingOpId);
+
+    document.getElementById('pMissingStep').textContent = (missingIndex + 1) + ' / ' + missingPool.length;
+    document.getElementById('pMissingProgressFill').style.width = ((missingIndex + 1) / missingPool.length * 100) + '%';
+    document.getElementById('pMissingQCard').style.background = op.gradient;
+    document.getElementById('pMissingQText').textContent = q.text;
+
+    const container = document.getElementById('pMissingAnsContainer');
+    container.classList.remove('answered');
+    let html = '';
+    missingDisplayOptions[qIdx].forEach((opt, i) => {
+      html += '<button class="ans-btn" onclick="pSelectMissingAnswer(' + i + ')"><div class="letter">' + String.fromCharCode(65 + i) + '</div>' + opt.toLocaleString() + '</button>';
+    });
+    container.innerHTML = html;
+
+    missingTimeLeft = diff.seconds * 1000;
+    updateMissingTimerBar();
+    missingTimerId = setInterval(() => {
+      missingTimeLeft -= 100;
+      if (missingTimeLeft <= 0) {
+        missingTimeLeft = 0;
+        pSelectMissingAnswer(-1); // timeout — 0 points, nothing auto-selected, same rule as Basic Math
+      } else {
+        updateMissingTimerBar();
+      }
+    }, 100);
+  }
+
+  function pSelectMissingAnswer(i){
+    if (missingAnswers[missingIndex] !== undefined) return;
+    clearMissingTimer();
+    const diff = missingDiffById(currentMissingDiffId);
+    const qIdx = missingPlayOrder[missingIndex];
+    const q = missingPool[qIdx];
+    const opts = missingDisplayOptions[qIdx];
+    const isTimeout = i < 0;
+    const correct = !isTimeout && opts[i] === q.answer;
+    const maxMs = diff.seconds * 1000;
+    const remainingMs = Math.max(0, missingTimeLeft);
+    const questionScore = correct ? Math.round(1000 + 200 * (remainingMs / maxMs)) : 0;
+    missingAnswers[missingIndex] = {picked: i, correct: correct, questionScore: questionScore, answerTimeMs: maxMs - remainingMs, opId: q.opId || currentMissingOpId};
+
+    document.getElementById('pMissingTimeUp').style.display = isTimeout ? 'block' : 'none';
+    document.getElementById('pMissingAnsContainer').classList.add('answered');
+    const btns = document.querySelectorAll('#pMissingAnsContainer .ans-btn');
+    btns.forEach((b, idx) => {
+      if (opts[idx] === q.answer) b.classList.add('correct');
+      else if (idx === i) b.classList.add('wrong');
+    });
+
+    missingAdvanceTimeoutId = setTimeout(() => {
+      missingAdvanceTimeoutId = null;
+      if (missingIndex < missingPool.length - 1) {
+        missingIndex += 1;
+        pRenderMissingQuestion();
+      } else {
+        finishMissingGame();
+      }
+    }, 500);
+  }
+
+  function finishMissingGame(){
+    const correctCount = missingAnswers.filter(a => a && a.correct).length;
+    const finalScore = missingAnswers.reduce((sum, a) => sum + (a ? a.questionScore : 0), 0);
+    const totalAnswerMs = missingAnswers.reduce((sum, a) => sum + (a ? a.answerTimeMs : 0), 0);
+    const avgTimeMs = missingAnswers.length ? totalAnswerMs / missingAnswers.length : 0;
+    let bestStreak = 0, streak = 0;
+    missingAnswers.forEach(a => { if (a && a.correct) { streak++; bestStreak = Math.max(bestStreak, streak); } else { streak = 0; } });
+
+    let opBreakdown = null;
+    if (currentMissingOpId === 'mixed') {
+      opBreakdown = {add:{correct:0,total:0}, sub:{correct:0,total:0}, mul:{correct:0,total:0}, div:{correct:0,total:0}};
+      missingAnswers.forEach(a => { if (a && opBreakdown[a.opId]) { opBreakdown[a.opId].total++; if (a.correct) opBreakdown[a.opId].correct++; } });
+    }
+
+    missingPlayedGames[currentMissingGameId] = {
+      finalScore: finalScore, correct: correctCount, total: missingPool.length,
+      avgTimeMs: avgTimeMs, bestStreak: bestStreak, opBreakdown: opBreakdown,
+    };
+    missingPersonalBest[currentMissingGameId] = Math.max(missingPersonalBest[currentMissingGameId] || 0, finalScore);
+    pgo('result-missing');
+  }
+
+  function renderMissingResult(){
+    if (!missingPool.length) openMissingGameSilent('mixed', '2_digit');
+    let played = missingPlayedGames[currentMissingGameId];
+    if (!played) { // fallback for direct subnav testing jumps
+      played = {finalScore: 21140, correct: 18, total: 20, avgTimeMs: 4200, bestStreak: 7, opBreakdown: null};
+      missingPlayedGames[currentMissingGameId] = played;
+      missingPersonalBest[currentMissingGameId] = Math.max(missingPersonalBest[currentMissingGameId] || 0, played.finalScore);
+    }
+    const op = mathOpById(currentMissingOpId);
+    const diff = missingDiffById(currentMissingDiffId);
+    const pct = Math.round(played.correct / played.total * 100);
+    const ringColor = op.id === 'add' ? 'var(--sun)' : op.id === 'sub' ? 'var(--accent)' : op.id === 'mul' ? 'var(--brand)' : op.id === 'div' ? 'var(--mint)' : '#8A6CF7';
+
+    document.getElementById('rmMissingScorePct').textContent = pct + '%';
+    document.getElementById('rmMissingRing').style.background = 'conic-gradient(' + ringColor + ' 0% ' + pct + '%, var(--line) ' + pct + '% 100%)';
+    document.getElementById('rmMissingTitle').textContent = op.name + '数字填空 · ' + diff.label;
+    document.getElementById('rmMissingVerdict').textContent = mathVerdictText(pct);
+    document.getElementById('rmMissingFinalScore').textContent = played.finalScore.toLocaleString();
+    document.getElementById('rmMissingCorrect').textContent = played.correct + ' / ' + played.total;
+    document.getElementById('rmMissingAvgTime').textContent = (played.avgTimeMs / 1000).toFixed(1) + 's';
+    document.getElementById('rmMissingStreak').textContent = played.bestStreak;
+    document.getElementById('rmMissingBest').textContent = (missingPersonalBest[currentMissingGameId] || played.finalScore).toLocaleString();
+
+    const rng = seedFromString('rank-' + currentMissingGameId + '-' + played.finalScore);
+    document.getElementById('rmMissingRank').textContent = randInt(rng, 12, 180);
+
+    const missingBox = document.getElementById('rmMissingBreakdown');
+    if (played.opBreakdown) {
+      missingBox.style.display = 'block';
+      let rowsHtml = '';
+      ['add', 'sub', 'mul', 'div'].forEach(o => {
+        const b = played.opBreakdown[o];
+        rowsHtml += '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>' + MATH_OP_LABELS[o] + '</span><b>' + b.correct + ' / ' + b.total + '</b></div>';
+      });
+      document.getElementById('rmMissingRows').innerHTML = rowsHtml;
+    } else {
+      missingBox.style.display = 'none';
+    }
+
+    document.getElementById('rmMissingLeaderboard').innerHTML = renderMissingLeaderboardHtml(currentMissingGameId);
+  }
+
+  function renderMissingLeaderboardHtml(gameId){
+    const rng = seedFromString('lb-' + gameId);
+    let entries = MATH_DEMO_NAMES.map(name => {
+      const correct = randInt(rng, 12, 20);
+      const avgMs = randInt(rng, 2200, 7800);
+      const diff = missingDiffById(currentMissingDiffId);
+      const maxMs = diff.seconds * 1000;
+      const remainRatio = Math.max(0, Math.min(1, 1 - avgMs / maxMs));
+      const score = Math.round(correct * (1000 + 200 * remainRatio));
+      return {name: name, score: score, correct: correct, avgMs: avgMs, isYou: false};
+    });
+    const played = missingPlayedGames[gameId];
+    if (played) entries.push({name: '你', score: played.finalScore, correct: played.correct, avgMs: played.avgTimeMs, isYou: true});
+    entries.sort((a, b) => b.score - a.score || b.correct - a.correct || a.avgMs - b.avgMs);
+
+    const total = entries.length;
+    const rankOfYou = entries.findIndex(e => e.isYou) + 1;
+    const top10 = entries.slice(0, 10);
+    const you = entries.find(e => e.isYou);
+    const youInTop10 = you && rankOfYou <= 10;
+
+    let html = '<div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:14px;">全站排行榜 Top 10 · 共 ' + (total + 100) + ' 人参与 · 按 Final Score 排序（同分再比答对题数、再比平均用时）</div>';
+
+    const top3 = top10.slice(0, 3);
+    const medalOrder = [top3[1], top3[0], top3[2]];
+    const medalIcons = ['🥈', '🥇', '🥉'];
+    html += '<div class="lb-podium">';
+    medalOrder.forEach((e, i) => {
+      if (!e) return;
+      const cls = i === 1 ? 'lb-pod gold' : 'lb-pod';
+      html += '<div class="' + cls + '"><div class="medal">' + medalIcons[i] + '</div><div class="pod-av">' + e.name.slice(0,1).toUpperCase() + '</div><div class="pod-name">' + e.name + '</div><div class="pod-sc">' + e.score.toLocaleString() + '</div><div class="pod-time">' + (e.avgMs/1000).toFixed(1) + 's/题</div></div>';
+    });
+    html += '</div>';
+
+    top10.slice(3).forEach((e, i) => {
+      const rank = i + 4;
+      const meClass = e.isYou ? ' me' : '';
+      html += '<div class="lb-row' + meClass + '"><div class="rank">' + rank + '</div><div class="av2">' + e.name.slice(0,1).toUpperCase() + '</div><div class="nm">' + e.name + '</div><div class="time">' + (e.avgMs/1000).toFixed(1) + 's/题</div><div class="pct">' + e.score.toLocaleString() + '</div></div>';
+    });
+
+    if (you && !youInTop10) {
+      html += '<div class="lb-sep">⋯</div>';
+      html += '<div class="lb-row you-outside"><div class="rank">第 ' + rankOfYou + ' 名</div><div class="av2">你</div><div class="nm">你</div><div class="time">' + (you.avgMs/1000).toFixed(1) + 's/题</div><div class="pct">' + you.score.toLocaleString() + '</div></div>';
+    }
+
+    return html;
+  }
+
   /* ---- Detail page is data-driven so the 2nd Quiz gets its own real page, not John's ---- */
   const detailGames = {
     'john-quiz': {
@@ -5187,6 +5686,7 @@
   function confirmQuit(){
     closeQuitConfirm();
     clearMathTimer(); // stop any running per-question countdown so it can't leak into a later game session
+    clearMissingTimer(); // same for the separate Missing Number Challenge countdown
     go('landing');
   }
 
@@ -5216,7 +5716,17 @@
       {name:'乘法', desc:'20 题 · 3 个难度', icon:'✖️'},
       {name:'除法', desc:'20 题 · 3 个难度', icon:'➗'},
       {name:'混合', desc:'20 题（各运算各 5 题）· 3 个难度', icon:'🔀'},
-    ].map((t,i)=>({...t, available:true, opId:['add','sub','mul','div','mixed'][i]}))},
+    ].map((t,i)=>({...t, available:true, opId:['add','sub','mul','div','mixed'][i]})),
+      // Missing Number — a second, parallel series under the same Math category (not a new top-level
+      // category). Same shell as Basic Arithmetic above; only the question mechanic differs (missing
+      // operand instead of missing result). All five modes available.
+      missingTypes: [
+        {name:'加法数字填空', desc:'20 题 · 3 个难度', icon:'➕', available:true, opId:'add'},
+        {name:'减法数字填空', desc:'20 题 · 3 个难度', icon:'➖', available:true, opId:'sub'},
+        {name:'乘法数字填空', desc:'20 题 · 3 个难度', icon:'✖️', available:true, opId:'mul'},
+        {name:'除法数字填空', desc:'20 题 · 3 个难度', icon:'➗', available:true, opId:'div'},
+        {name:'混合数字填空', desc:'20 题（各运算各 5 题）· 3 个难度', icon:'🔀', available:true, opId:'mixed'},
+      ]},
     iq: {title:'IQ', mode:'play', subtitle:'平台题库，选一个现有的 Game 直接开始玩', types:[
       {name:'逻辑推理挑战', desc:'2,340 人玩过', icon:'🧠', available:true, target:'landing-iq',
         introCat:'IQ', introDesc:'10 道逻辑推理题，看看你能超过多少人',
@@ -5380,6 +5890,22 @@
               + '<div class="go">🔒</div></div>';
       }
     });
+    if (cat === 'math' && data.missingTypes) {
+      html += '<div style="font-size:11px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin:22px 0 10px;">Missing Number Challenge · 数字填空挑战</div>';
+      data.missingTypes.forEach((t) => {
+        if (t.available) {
+          html += '<div class="gt-list-card" onclick="openMissingOperation(\'' + t.opId + '\')">'
+                + '<div class="ic">' + t.icon + '</div>'
+                + '<div class="t"><div class="n">' + t.name + '</div><div class="d">' + t.desc + '</div></div>'
+                + '<div class="go">▶</div></div>';
+        } else {
+          html += '<div class="gt-list-card locked">'
+                + '<div class="ic">' + t.icon + '</div>'
+                + '<div class="t"><div class="n">' + t.name + '</div><div class="d">' + t.desc + '</div></div>'
+                + '<div class="go">🔒</div></div>';
+        }
+      });
+    }
     document.getElementById('gtsList').innerHTML = html;
     go('gametype-select');
   }
