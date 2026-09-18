@@ -1119,6 +1119,8 @@
           <h1 id="legalTitle">隐私政策</h1>
           <div class="legal-meta">最后更新：2026 年 8 月</div>
 
+          <div class="legal-toc" id="legalDocsNav"></div>
+
           <p class="legal-placeholder">
             这里是 <b id="legalTitle2">隐私政策</b> 的正文占位——实际条文需要请法务或专业服务撰写，不同页面（隐私政策/服务条款/Cookie 政策/社区规范/版权声明）内容差异很大，这里只演示排版结构：标题、更新日期、目录、分段落正文、联系方式区块。
           </p>
@@ -3556,7 +3558,11 @@
     {id:'link-expired', label:'⑫a 链接已失效', addr:'ducalgame.com/manage/john-x92k-old'},
     {id:'game-offline', label:'⑫a-1 Game 已下线', addr:'ducalgame.com/g/john-x92k'},
     {id:'not-found', label:'⑫b 404 页面不存在', addr:'ducalgame.com/xyz-not-a-real-page'},
-    {id:'legal', label:'⑪c 法律页面模板（隐私/条款等）', addr:'ducalgame.com/legal/privacy'},
+    {id:'legal-privacy', label:'⑪c-1 法律页面 · 隐私政策', addr:'ducalgame.com/legal/privacy'},
+    {id:'legal-terms', label:'⑪c-2 法律页面 · 服务条款', addr:'ducalgame.com/legal/terms'},
+    {id:'legal-cookies', label:'⑪c-3 法律页面 · Cookie 政策', addr:'ducalgame.com/legal/cookies'},
+    {id:'legal-community-guidelines', label:'⑪c-4 法律页面 · 社区规范', addr:'ducalgame.com/legal/community-guidelines'},
+    {id:'legal-copyright', label:'⑪c-5 法律页面 · 版权声明', addr:'ducalgame.com/legal/copyright'},
   ];
   const navGroup = document.getElementById('navGroup');
   const subNav = document.getElementById('subNav');
@@ -3575,12 +3581,15 @@
         wbGameHasPlays = true;
         go('workbench');
         addrBar.textContent = s.addr;
+      } else if (s.id.indexOf('legal-') === 0) {
+        openLegal(s.id.slice('legal-'.length)); // openLegal() already sets addrBar itself
       } else {
         go(s.id);
       }
-      // both workbench demo buttons map to the same underlying screen id,
-      // so fix up which one shows as active after go() runs its own highlight logic
-      if (s.id === 'workbench' || s.id === 'workbench-locked') {
+      // both workbench demo buttons map to the same underlying screen id, and all five legal-*
+      // entries map to the same underlying 'legal' screen id, so fix up which one shows as active
+      // after go()'s own highlight logic (keyed on the id actually passed to go()) misses them
+      if (s.id === 'workbench' || s.id === 'workbench-locked' || s.id.indexOf('legal-') === 0) {
         document.querySelectorAll('#navGroup button').forEach(el=>el.classList.toggle('active', el===b));
       }
     };
@@ -6563,10 +6572,24 @@
     },
   };
 
+  const LEGAL_DOC_ORDER = ['privacy', 'terms', 'cookies', 'community-guidelines', 'copyright'];
+
   function openLegal(slug){
-    const doc = LEGAL_DOCS[slug] || LEGAL_DOCS.privacy;
+    const resolvedSlug = LEGAL_DOCS[slug] ? slug : 'privacy';
+    const doc = LEGAL_DOCS[resolvedSlug];
     document.getElementById('legalTitle').textContent = doc.title;
     document.getElementById('legalTitle2').textContent = doc.title;
+
+    // cross-document navigation so any Legal page can reach the other four, reusing the
+    // existing legal-toc box style — current document shown as plain bold text, not a link
+    let navHtml = '<div class="t">法律文档</div>';
+    LEGAL_DOC_ORDER.forEach(s => {
+      const d = LEGAL_DOCS[s];
+      navHtml += (s === resolvedSlug)
+        ? '<b style="display:block;font-size:13px;color:var(--ink);padding:5px 0;">' + d.title + '</b>'
+        : '<a onclick="openLegal(\'' + s + '\')">' + d.title + '</a>';
+    });
+    document.getElementById('legalDocsNav').innerHTML = navHtml;
 
     let tocHtml = '<div class="t">目录</div>';
     doc.sections.forEach((s, i) => { tocHtml += '<a>' + (i + 1) + '. ' + s.h + '</a>'; });
