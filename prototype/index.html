@@ -1385,7 +1385,11 @@
       </div>
     </div>
 
-    <!-- ============ CHALLENGE BACK: create your own quiz (reuses wb-shell editor) ============ -->
+    <!-- ============ CHALLENGE BACK: create your own quiz. Reuses the exact same .wb-shell/.wb-outline/
+         .wb-editor/.wb-preview editor grid as the Workbench screen below (same CSS, same 3-column
+         layout, same reroll/preview mechanics) — only wrapped in this screen's own .challenge-shell/
+         .challenge-head header and driven by its own c*-prefixed state (cQuestions/cIndex/etc.)
+         instead of Workbench's wb*-prefixed state. No editor markup is duplicated. ============ -->
     <div class="screen" data-screen="challenge">
       <div class="challenge-shell">
         <div class="challenge-head">
@@ -1617,7 +1621,6 @@
       </div>
     </div>
 
-    <!-- ============ WORKBENCH ============ -->
     <!-- ============ CATEGORY SELECT ============ -->
     <div class="screen" data-screen="category-select">
       <div class="picker-shell has-bottomnav">
@@ -2080,6 +2083,11 @@
       </div>
     </div>
 
+    <!-- ============ WORKBENCH — also serves as "Workbench Locked". There is no separate locked
+         screen/template: the wbGameHasPlays flag (set when opened via a Published game's "✏️ 编辑"
+         action) toggles this same markup into its locked state — lock banner shown, question text
+         read-only, reroll/ad controls hidden, footer button becomes "← 返回" instead of "存为草稿".
+         See wbRender(). ============ -->
     <div class="screen" data-screen="workbench">
       <div class="wb-shell">
         <div class="wb-outline" id="wbOutline">
