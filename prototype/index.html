@@ -218,6 +218,16 @@
   .confirm-modal .confirm-actions{display:flex;gap:10px;}
   .confirm-modal .confirm-actions .btn{flex:1;}
   .gt-icon{width:64px;height:64px;border-radius:20px;background:linear-gradient(160deg,var(--brand),#8A6CF7);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px;color:#fff;}
+
+  /* ---- Auth family shared elements (Login / Register / Forgot Password) ----
+     Shell/card itself is the existing shared .player-stage/.center-card (untouched, used
+     across many other screens too). These two classes only replace repeated inline styles
+     for the heading block and the secondary clickable-text links, with identical values. */
+  .auth-head{text-align:center;margin-bottom:24px;}
+  .auth-head .gt-icon{margin:0 auto 14px;}
+  .auth-head h1{font-size:22px;margin:0 0 6px;}
+  .auth-head p{font-size:13px;color:var(--ink-soft);margin:0;}
+  .auth-link{color:var(--brand-dark);font-weight:700;cursor:pointer;}
   .gt-cat{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-dark);margin-bottom:6px;}
 
   /* ---- Category select & Game Type select (in front of the intro screen) ---- */
@@ -1822,10 +1832,10 @@
           <button class="center-card-close" onclick="closeAuthFlow()">✕</button>
 
           <div id="loginMethodsState">
-            <div style="text-align:center;margin-bottom:24px;">
-              <div class="gt-icon" style="margin:0 auto 14px;">🔑</div>
-              <h1 style="font-size:22px;margin:0 0 6px;">Welcome back</h1>
-              <p style="font-size:13px;color:var(--ink-soft);margin:0;">登录你的 Ducal Game 账号</p>
+            <div class="auth-head">
+              <div class="gt-icon">🔑</div>
+              <h1>Welcome back</h1>
+              <p>登录你的 Ducal Game 账号</p>
             </div>
 
             <div class="field">
@@ -1837,7 +1847,7 @@
               <input type="password" placeholder="••••••••" />
             </div>
             <div style="text-align:right;margin:-10px 0 18px;">
-              <span style="font-size:12px;color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="go('forgot-password')">忘记密码？</span>
+              <span class="auth-link" style="font-size:12px;" onclick="go('forgot-password')">忘记密码？</span>
             </div>
 
             <button class="btn accent full" onclick="go('dashboard')">登录</button>
@@ -1859,10 +1869,10 @@
           </div>
 
           <div id="loginPhoneState" style="display:none;">
-            <div style="text-align:center;margin-bottom:24px;">
-              <div class="gt-icon" style="margin:0 auto 14px;">📱</div>
-              <h1 style="font-size:22px;margin:0 0 6px;">输入手机号码</h1>
-              <p style="font-size:13px;color:var(--ink-soft);margin:0;">不需要密码，我们发验证码给你</p>
+            <div class="auth-head">
+              <div class="gt-icon">📱</div>
+              <h1>输入手机号码</h1>
+              <p>不需要密码，我们发验证码给你</p>
             </div>
 
             <div class="field">
@@ -1875,30 +1885,30 @@
 
             <button class="btn accent full" onclick="loginShowOtp()">获取验证码</button>
             <div style="text-align:center;margin-top:18px;font-size:12.5px;">
-              <span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="loginBackToMethods()">← 换一种方式</span>
+              <span class="auth-link" onclick="loginBackToMethods()">← 换一种方式</span>
             </div>
           </div>
 
           <div id="loginOtpState" style="display:none;">
-            <div style="text-align:center;margin-bottom:24px;">
-              <div class="gt-icon" style="margin:0 auto 14px;">🔢</div>
-              <h1 style="font-size:22px;margin:0 0 6px;">输入验证码</h1>
-              <p style="font-size:13px;color:var(--ink-soft);margin:0;">已发送到 <span id="loginPhoneEcho"></span></p>
+            <div class="auth-head">
+              <div class="gt-icon">🔢</div>
+              <h1>输入验证码</h1>
+              <p>已发送到 <span id="loginPhoneEcho"></span></p>
             </div>
 
             <div class="otp-row">
               <input maxlength="1" /><input maxlength="1" /><input maxlength="1" /><input maxlength="1" /><input maxlength="1" /><input maxlength="1" />
             </div>
-            <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:20px;">没收到？<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;">重新发送</span></div>
+            <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:20px;">没收到？<span class="auth-link">重新发送</span></div>
 
             <button class="btn accent full" onclick="go('dashboard')">验证并登录</button>
             <div style="text-align:center;margin-top:18px;font-size:12.5px;">
-              <span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="loginBackToMethods()">← 换一种方式</span>
+              <span class="auth-link" onclick="loginBackToMethods()">← 换一种方式</span>
             </div>
           </div>
 
           <div id="loginFooter" style="text-align:center;margin-top:18px;font-size:12.5px;color:var(--ink-soft);">
-            还没有账号？<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="go('register')">现在就注册</span>
+            还没有账号？<span class="auth-link" onclick="go('register')">现在就注册</span>
           </div>
         </div>
       </div>
@@ -1911,10 +1921,10 @@
           <button class="center-card-close" onclick="go('login')">✕</button>
 
           <div id="fpFormState">
-            <div style="text-align:center;margin-bottom:24px;">
-              <div class="gt-icon" style="margin:0 auto 14px;">🔒</div>
-              <h1 style="font-size:22px;margin:0 0 6px;">忘记密码了？</h1>
-              <p style="font-size:13px;color:var(--ink-soft);margin:0;">输入你的邮箱，我们会发一个重置密码的链接给你</p>
+            <div class="auth-head">
+              <div class="gt-icon">🔒</div>
+              <h1>忘记密码了？</h1>
+              <p>输入你的邮箱，我们会发一个重置密码的链接给你</p>
             </div>
 
             <div class="field">
@@ -1937,7 +1947,7 @@
             </p>
             <button class="btn accent full" onclick="go('login')">返回登录</button>
             <div style="text-align:center;margin-top:14px;font-size:12px;color:var(--ink-soft);">
-              没收到？<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="sendResetLink()">重新发送</span>
+              没收到？<span class="auth-link" onclick="sendResetLink()">重新发送</span>
             </div>
           </div>
         </div>
@@ -1951,10 +1961,10 @@
           <button class="center-card-close" onclick="closeAuthFlow()">✕</button>
 
           <div id="regMethodsState">
-            <div style="text-align:center;margin-bottom:24px;">
-              <div class="gt-icon" style="margin:0 auto 14px;">🎉</div>
-              <h1 style="font-size:22px;margin:0 0 6px;">创建你的账号</h1>
-              <p style="font-size:13px;color:var(--ink-soft);margin:0;">选一种方式开始</p>
+            <div class="auth-head">
+              <div class="gt-icon">🎉</div>
+              <h1>创建你的账号</h1>
+              <p>选一种方式开始</p>
             </div>
 
             <div class="login-method" style="cursor:pointer;max-width:100%;" onclick="completeRegistration('dashboard')">
@@ -1971,7 +1981,7 @@
             </div>
 
             <p style="font-size:11px;color:var(--ink-soft);text-align:center;margin:14px 0 0;line-height:1.6;">
-              继续即代表你同意我们的<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="openLegal('terms')">服务条款</span>和<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="openLegal('privacy')">隐私政策</span>
+              继续即代表你同意我们的<span class="auth-link" onclick="openLegal('terms')">服务条款</span>和<span class="auth-link" onclick="openLegal('privacy')">隐私政策</span>
             </p>
 
             <div class="cs-or">或使用邮箱注册</div>
@@ -1987,16 +1997,16 @@
 
             <label class="tos-check">
               <input type="checkbox" id="regTosCheck" onchange="document.getElementById('regEmailBtn').disabled = !this.checked;" />
-              <span>我已阅读并同意<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="event.preventDefault();openLegal('terms')">服务条款</span>和<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="event.preventDefault();openLegal('privacy')">隐私政策</span></span>
+              <span>我已阅读并同意<span class="auth-link" onclick="event.preventDefault();openLegal('terms')">服务条款</span>和<span class="auth-link" onclick="event.preventDefault();openLegal('privacy')">隐私政策</span></span>
             </label>
             <button class="btn accent full" id="regEmailBtn" disabled onclick="completeRegistration('creator-name')">创建账号</button>
           </div>
 
           <div id="regPhoneState" style="display:none;">
-            <div style="text-align:center;margin-bottom:24px;">
-              <div class="gt-icon" style="margin:0 auto 14px;">📱</div>
-              <h1 style="font-size:22px;margin:0 0 6px;">输入手机号码</h1>
-              <p style="font-size:13px;color:var(--ink-soft);margin:0;">我们会发一条验证码短信给你</p>
+            <div class="auth-head">
+              <div class="gt-icon">📱</div>
+              <h1>输入手机号码</h1>
+              <p>我们会发一条验证码短信给你</p>
             </div>
 
             <div class="field">
@@ -2009,30 +2019,30 @@
 
             <button class="btn accent full" onclick="registerShowOtp()">获取验证码</button>
             <div style="text-align:center;margin-top:18px;font-size:12.5px;">
-              <span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="registerBackToMethods()">← 换一种方式</span>
+              <span class="auth-link" onclick="registerBackToMethods()">← 换一种方式</span>
             </div>
           </div>
 
           <div id="regOtpState" style="display:none;">
-            <div style="text-align:center;margin-bottom:24px;">
-              <div class="gt-icon" style="margin:0 auto 14px;">🔢</div>
-              <h1 style="font-size:22px;margin:0 0 6px;">输入验证码</h1>
-              <p style="font-size:13px;color:var(--ink-soft);margin:0;">已发送到 <span id="regPhoneEcho"></span></p>
+            <div class="auth-head">
+              <div class="gt-icon">🔢</div>
+              <h1>输入验证码</h1>
+              <p>已发送到 <span id="regPhoneEcho"></span></p>
             </div>
 
             <div class="otp-row">
               <input maxlength="1" /><input maxlength="1" /><input maxlength="1" /><input maxlength="1" /><input maxlength="1" /><input maxlength="1" />
             </div>
-            <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:20px;">没收到？<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;">重新发送</span></div>
+            <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:20px;">没收到？<span class="auth-link">重新发送</span></div>
 
             <button class="btn accent full" onclick="completeRegistration('creator-name')">验证并创建账号</button>
             <div style="text-align:center;margin-top:18px;font-size:12.5px;">
-              <span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="registerBackToMethods()">← 换一种方式</span>
+              <span class="auth-link" onclick="registerBackToMethods()">← 换一种方式</span>
             </div>
           </div>
 
           <div id="regFooter" style="text-align:center;margin-top:18px;font-size:12.5px;color:var(--ink-soft);">
-            已有账号？<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="go('login')">去登录</span>
+            已有账号？<span class="auth-link" onclick="go('login')">去登录</span>
           </div>
         </div>
       </div>
