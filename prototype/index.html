@@ -227,6 +227,19 @@
   .auth-head .gt-icon{margin:0 auto 14px;}
   .auth-head h1{font-size:22px;margin:0 0 6px;}
   .auth-head p{font-size:13px;color:var(--ink-soft);margin:0;}
+
+  /* ---- System family shared elements (Link Expired / Game Offline / 404 Not Found) ----
+     Shell/card itself is the existing shared .player-stage/.center-card (untouched, used
+     across many other screens too, including Auth above). This modifier class only
+     replaces repeated inline styles for the icon, heading block, and the optional
+     secondary "is this your Game?" link, with identical values — same technique as
+     .auth-head. */
+  .center-card.sys-card{text-align:center;}
+  .center-card.sys-card .gt-icon{margin:0 auto 14px;background:linear-gradient(160deg,#94A3B8,#64748B);}
+  .center-card.sys-card h1{font-size:22px;margin:0 0 8px;}
+  .center-card.sys-card p{font-size:13px;color:var(--ink-soft);margin:0 0 24px;line-height:1.7;}
+  .center-card.sys-card .sys-note{margin-top:16px;font-size:12.5px;}
+  .center-card.sys-card .sys-note .link{color:var(--brand-dark);font-weight:700;cursor:pointer;}
   .auth-link{color:var(--brand-dark);font-weight:700;cursor:pointer;}
   .gt-cat{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-dark);margin-bottom:6px;}
 
@@ -1122,15 +1135,15 @@
     <!-- ============ LINK EXPIRED: a management link that's been regenerated, or a public link to a deleted Game ============ -->
     <div class="screen" data-screen="link-expired">
       <div class="player-stage">
-        <div class="center-card" style="text-align:center;">
-          <div class="gt-icon" style="margin:0 auto 14px;background:linear-gradient(160deg,#94A3B8,#64748B);">🔗</div>
-          <h1 style="font-size:22px;margin:0 0 8px;">这个链接已经失效了</h1>
-          <p style="font-size:13px;color:var(--ink-soft);margin:0 0 24px;line-height:1.7;">
+        <div class="center-card sys-card">
+          <div class="gt-icon">🔗</div>
+          <h1>这个链接已经失效了</h1>
+          <p>
             可能是管理链接已经重新生成、这个 Game 已经被删除，或者链接本身有误——失效的链接没办法恢复
           </p>
           <button class="btn accent full" onclick="go('landing')">返回首页</button>
-          <div style="text-align:center;margin-top:16px;font-size:12.5px;">
-            这是你自己的 Game？<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="go('login')">登录管理我的 Game</span>
+          <div class="sys-note">
+            这是你自己的 Game？<span class="link" onclick="go('login')">登录管理我的 Game</span>
           </div>
         </div>
       </div>
@@ -1139,15 +1152,15 @@
     <!-- ============ GAME OFFLINE: creator toggled off "发布状态" ============ -->
     <div class="screen" data-screen="game-offline">
       <div class="player-stage">
-        <div class="center-card" style="text-align:center;">
-          <div class="gt-icon" style="margin:0 auto 14px;background:linear-gradient(160deg,#94A3B8,#64748B);">💤</div>
-          <h1 style="font-size:22px;margin:0 0 8px;">该 Game 已下线</h1>
-          <p style="font-size:13px;color:var(--ink-soft);margin:0 0 24px;line-height:1.7;">
+        <div class="center-card sys-card">
+          <div class="gt-icon">💤</div>
+          <h1>该 Game 已下线</h1>
+          <p>
             创建者暂时关闭了这个 Game 的公开访问，稍后再回来看看，或者去发现别的好玩的 Game
           </p>
           <button class="btn accent full" onclick="go('games')">去发现好玩的 Game →</button>
-          <div style="text-align:center;margin-top:16px;font-size:12.5px;">
-            这是你自己的 Game？<span style="color:var(--brand-dark);font-weight:700;cursor:pointer;" onclick="go('login')">登录管理我的 Game</span>
+          <div class="sys-note">
+            这是你自己的 Game？<span class="link" onclick="go('login')">登录管理我的 Game</span>
           </div>
         </div>
       </div>
@@ -1156,10 +1169,10 @@
     <!-- ============ 404 NOT FOUND: any URL that doesn't correspond to anything ============ -->
     <div class="screen" data-screen="not-found">
       <div class="player-stage">
-        <div class="center-card" style="text-align:center;">
-          <div class="gt-icon" style="margin:0 auto 14px;background:linear-gradient(160deg,#94A3B8,#64748B);">🧭</div>
-          <h1 style="font-size:22px;margin:0 0 8px;">这个页面不存在</h1>
-          <p style="font-size:13px;color:var(--ink-soft);margin:0 0 24px;line-height:1.7;">
+        <div class="center-card sys-card">
+          <div class="gt-icon">🧭</div>
+          <h1>这个页面不存在</h1>
+          <p>
             网址可能输错了，或者这个页面已经被移除
           </p>
           <button class="btn accent full" onclick="go('landing')">返回首页</button>
@@ -3918,6 +3931,9 @@
       document.getElementById('reportSentState').style.display = 'none';
       document.getElementById('reportTargetInput').value = '';
       document.getElementById('reportDetailInput').value = '';
+    }
+    if(id==='contact'){
+      document.getElementById('contactSentNote').style.display = 'none';
     }
     if(id==='forgot-password'){
       document.getElementById('fpFormState').style.display = 'block';
