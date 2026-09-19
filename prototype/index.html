@@ -1043,6 +1043,39 @@
     [data-screen="library"] .gcard.locked-slot{flex-direction:row;justify-content:flex-start;align-items:center;gap:10px;min-height:0;text-align:left;padding:10px 14px;}
     [data-screen="library"] .gcard.empty-slot .sub{margin-left:auto;text-align:right;}
 
+    /* ---- creator analytics (Mobile only; scoped to this screen, shared rules above untouched) ---- */
+    /* header: same pattern as Dashboard / Library — title, then the subtitle at full width */
+    [data-screen="analytics"] .head-row{align-items:center;flex-wrap:wrap;column-gap:12px;row-gap:4px;}
+    [data-screen="analytics"] .head-row > div{display:contents;}
+    [data-screen="analytics"] .head-row h2{order:1;flex:1 1 0;min-width:0;margin:0;}
+    [data-screen="analytics"] .head-row .sub{order:3;flex:0 0 100%;font-size:13px;color:var(--ink-soft);margin-top:0;}
+    /* range filter: four equal-width pills */
+    [data-screen="analytics"] #analyticsRangeFilter{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+    [data-screen="analytics"] #analyticsRangeFilter .btn{min-height:40px;justify-content:center;}
+    /* chart card: key numbers first (two equal columns), then a slightly shorter chart */
+    [data-screen="analytics"] .info-card:has(> .trend-chart){display:flex;flex-direction:column;padding-top:2px;}
+    [data-screen="analytics"] .info-card:has(> .trend-chart) > div:last-child{order:-1;}
+    [data-screen="analytics"] .info-card:has(> .trend-chart) > div:last-child > div{flex:1 1 0;min-width:0;}
+    [data-screen="analytics"] .trend-chart{height:110px;margin-top:6px;}
+    [data-screen="analytics"] .trend-chart-labels span{min-width:0;white-space:nowrap;}
+    /* game performance table -> list rows: name + trend on top; plays · performance · time beneath */
+    [data-screen="analytics"] .table-scroll{overflow:visible;margin:0;padding:0;}
+    [data-screen="analytics"] .table-scroll table{min-width:0;}
+    [data-screen="analytics"] .game-table,
+    [data-screen="analytics"] .game-table tbody{display:block;}
+    [data-screen="analytics"] .game-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+    [data-screen="analytics"] .game-table tr{display:grid;grid-template-columns:auto auto 1fr auto;column-gap:10px;row-gap:8px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);}
+    [data-screen="analytics"] .game-table tr:last-child{border-bottom:none;}
+    [data-screen="analytics"] .game-table td{display:block;padding:0;border:none;font-size:12px;color:var(--ink-soft);}
+    [data-screen="analytics"] .game-table td:nth-child(1){grid-column:1 / 4;grid-row:1;font-size:13.5px;color:var(--ink);}
+    [data-screen="analytics"] .game-table td:nth-child(2){grid-column:1;grid-row:2;}
+    [data-screen="analytics"] .game-table td:nth-child(2)::before{content:"玩过 ";}
+    [data-screen="analytics"] .game-table td:nth-child(3){grid-column:2;grid-row:2;}
+    [data-screen="analytics"] .game-table td:nth-child(4){grid-column:3;grid-row:2;}
+    [data-screen="analytics"] .game-table td:nth-child(4)::before{content:"用时 ";}
+    [data-screen="analytics"] .game-table td:nth-child(5){grid-column:4;grid-row:1;justify-self:end;}
+    [data-screen="analytics"] #analyticsEmptyBlock{margin-top:16px;}
+
     /* ---- manage detail ---- */
     .detail-tabs{overflow-x:auto;white-space:nowrap;}
     .detail-head{flex-wrap:wrap;}
@@ -2285,9 +2318,8 @@
 
             <h3 style="font-size:14px;margin:24px 0 12px;">玩家从哪里来</h3>
             <div class="info-card">
-              <div class="channel-row"><div class="lbl">直接分享链接</div><div class="bar-wrap"><div class="bar-fill" style="width:58%;"></div></div><div class="pct">58%</div></div>
-              <div class="channel-row"><div class="lbl">反向挑战</div><div class="bar-wrap"><div class="bar-fill" style="width:27%;"></div></div><div class="pct">27%</div></div>
-              <div class="channel-row"><div class="lbl">公开游戏列表</div><div class="bar-wrap"><div class="bar-fill" style="width:15%;"></div></div><div class="pct">15%</div></div>
+              <div class="channel-row"><div class="lbl">直接分享链接</div><div class="bar-wrap"><div class="bar-fill" style="width:68%;"></div></div><div class="pct">68%</div></div>
+              <div class="channel-row"><div class="lbl">反向挑战</div><div class="bar-wrap"><div class="bar-fill" style="width:32%;"></div></div><div class="pct">32%</div></div>
             </div>
           </div>
 
