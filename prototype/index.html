@@ -735,20 +735,17 @@
   .mkt-hero p.lead{font-size:15.5px;color:var(--ink-soft);max-width:460px;line-height:1.6;margin:0 0 26px;}
   .mkt-hero .cta-row{display:flex;gap:12px;align-items:center;}
   .mkt-hero .cta-row .note{font-size:12px;color:var(--ink-soft);}
-  .hero-dots{display:flex;gap:8px;margin-top:24px;}
-  .hero-dot{width:8px;height:8px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s;}
-  .hero-dot.on{background:var(--brand);width:22px;border-radius:100px;}
   .btn.lg{padding:15px 26px;font-size:15px;}
 
+  /* Landing hero (Public → Landing only). Fluid: no new breakpoint. */
+  .mkt-hero.landing-hero{max-width:1120px;margin:0 auto;grid-template-columns:minmax(0,1fr) clamp(240px,31cqw,380px);gap:clamp(24px,5cqw,64px);padding:clamp(40px,7cqw,72px) clamp(24px,4.5cqw,56px);justify-content:center;}
+  .landing-hero .lh-text{max-width:520px;}
+  .landing-hero h1{font-size:clamp(34px,4.6cqw,50px);line-height:1.1;text-wrap:balance;}
+  .landing-hero p.lead{font-size:16px;max-width:440px;}
+  .landing-hero .lh-actions{display:flex;flex-wrap:wrap;gap:12px;}
+  .landing-hero .lh-actions .btn{white-space:nowrap;justify-content:center;min-height:48px;}
+  .landing-hero .mkt-visual .mini-phone{width:100%;max-width:300px;}
   .mkt-visual{position:relative;}
-  .mkt-visual .float-card{
-    position:absolute;background:#fff;border:1px solid var(--line);border-radius:16px;
-    padding:12px 14px;box-shadow:0 16px 30px -14px rgba(20,10,60,.35);font-size:11.5px;font-weight:700;
-    display:flex;align-items:center;gap:8px;
-  }
-  .mkt-visual .fc1{top:-14px;left:-24px;color:#0E8F76;}
-  .mkt-visual .fc1 .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);}
-  .mkt-visual .fc2{bottom:10px;right:-28px;color:var(--brand-dark);}
 
   .mkt-steps{padding:20px 48px 56px;background:#FBFAFF;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
   .mkt-steps h3{text-align:center;font-size:22px;margin:20px 0 34px;}
@@ -937,7 +934,11 @@
     .mkt-hero{grid-template-columns:1fr;padding:34px 20px 40px;gap:26px;}
     .mkt-hero h1{font-size:28px;}
     .mkt-hero p.lead{max-width:100%;}
-    .mkt-visual .float-card{display:none;}
+    .mkt-hero.landing-hero{grid-template-columns:1fr;padding:28px 20px 24px;gap:16px;}
+    .landing-hero h1{font-size:32px;}
+    .landing-hero .lh-actions{flex-direction:column;gap:10px;}
+    .landing-hero .lh-actions .btn{width:100%;}
+    .landing-hero .mkt-visual .mini-phone{max-width:216px;}
     .mkt-visual .mini-phone{width:100%;max-width:270px;margin:0 auto;}
     .mkt-steps{padding:16px 20px 36px;}
     .steps-row{grid-template-columns:1fr 1fr;gap:14px;}
@@ -1068,28 +1069,24 @@
         <a onclick="go('login')">登录</a>
       </div>
 
-      <div class="mkt-hero">
-        <div>
-          <div class="eyebrow" id="heroEyebrow"></div>
-          <h1 id="heroTitle"></h1>
-          <p class="lead" id="heroLead"></p>
-          <div class="cta-row">
-            <button class="btn accent lg" id="heroCta"></button>
-            <span class="note" id="heroNote"></span>
-          </div>
-          <div class="hero-dots" id="heroDots">
-            <span class="hero-dot" onclick="goHeroSlide(0)"></span>
-            <span class="hero-dot" onclick="goHeroSlide(1)"></span>
-            <span class="hero-dot" onclick="goHeroSlide(2)"></span>
+      <div class="mkt-hero landing-hero">
+        <div class="lh-text">
+          <div class="eyebrow">Play. Challenge. Have Fun.</div>
+          <h1>Quick games.<br><span>Fun challenges.</span></h1>
+          <p class="lead">Play quizzes, math challenges, IQ games and more — right in your browser.</p>
+          <div class="lh-actions">
+            <button class="btn accent lg" onclick="go('games')">Play Games</button>
+            <button class="btn ghost lg" onclick="go('category-select')">Create a Game</button>
           </div>
         </div>
         <div class="mkt-visual">
-          <div class="float-card fc1" id="heroFloat1"><span class="dot"></span></div>
-          <div class="float-card fc2" id="heroFloat2"></div>
-          <div class="mini-phone" style="width:280px;">
-            <div class="mini-progress"><i style="width:80%;"></i></div>
-            <div class="mini-q" id="heroMiniQ"></div>
-            <div id="heroMiniAns"></div>
+          <div class="mini-phone">
+            <div class="mini-progress"><i style="width:40%;"></i></div>
+            <div class="mini-q">23 × 4 = ?</div>
+            <div class="mini-ans"><span class="l">A</span>82</div>
+            <div class="mini-ans"><span class="l">B</span>88</div>
+            <div class="mini-ans"><span class="l">C</span>92</div>
+            <div class="mini-ans"><span class="l">D</span>96</div>
           </div>
         </div>
       </div>
@@ -5478,73 +5475,6 @@
     btn.classList.toggle('open');
     btn.nextElementSibling.classList.toggle('open');
   }
-  /* ---- Landing hero carousel: Quiz (create) → IQ (play) → Math (play), auto-advance every 3s ---- */
-  const heroSlides = [
-    {
-      eyebrow: '🎉 无需注册，30 秒创建',
-      title: '看看朋友<br>到底<span>有多了解你</span>',
-      lead: '创建一个属于你的小测验，分享给朋友，看看谁最懂你。不用注册、不用下载，做完直接发链接就能玩。',
-      ctaText: '开始创建我的 Game →', cta: function(){ go('category-select'); },
-      note: '完全免费 · 2 分钟搞定',
-      float1: '128 人玩过', float2: '🎯 匹配度 82%',
-      miniQ: 'John 最喜欢的旅行地是？', miniOpts: ['日本','冰岛','希腊','葡萄牙'],
-    },
-    {
-      eyebrow: '🧠 挑战你的大脑',
-      title: '测测你的<br><span>逻辑思维</span>有多强',
-      lead: '10 道精心设计的逻辑推理题，看看你能超过多少人。题目都是现成的，不用自己创建，直接开始挑战。',
-      ctaText: '开始玩 →', cta: function(){ go('player'); pgo('landing-iq'); },
-      note: '2,340 人已经玩过',
-      float1: '2,340 人玩过', float2: '🏆 全站排行榜',
-      miniQ: '数列规律：2, 4, 8, 16, ?', miniOpts: ['24','28','32','36'],
-    },
-    {
-      eyebrow: '➗ 心算王者',
-      title: '挑战<br><span>心算极限</span>',
-      lead: '10 道心算题，考验你的速度和准确率。答得越快排名越高，题目也是现成的，直接开始玩。',
-      ctaText: '开始玩 →', cta: function(){ go('player'); pgo('landing'); },
-      note: '比比看谁算得最快',
-      float1: '⏱ 平均用时 1:52', float2: '🔥 连续答对加分',
-      miniQ: '23 × 4 = ?', miniOpts: ['82','88','92','96'],
-    },
-  ];
-  let heroIndex = 0;
-  const HERO_SLIDE_INTERVAL_MS = 5000; // change this one number to adjust the carousel's auto-advance speed
-  let heroTimer = null;
-
-  function renderHero(){
-    const s = heroSlides[heroIndex];
-    document.getElementById('heroEyebrow').textContent = s.eyebrow;
-    document.getElementById('heroTitle').innerHTML = s.title;
-    document.getElementById('heroLead').textContent = s.lead;
-    const ctaBtn = document.getElementById('heroCta');
-    ctaBtn.textContent = s.ctaText;
-    ctaBtn.onclick = s.cta;
-    document.getElementById('heroNote').textContent = s.note;
-    document.getElementById('heroFloat1').innerHTML = '<span class="dot"></span>' + s.float1;
-    document.getElementById('heroFloat2').textContent = s.float2;
-    document.getElementById('heroMiniQ').textContent = s.miniQ;
-    const letters = ['A','B','C','D'];
-    document.getElementById('heroMiniAns').innerHTML = s.miniOpts.map((o, i) =>
-      '<div class="mini-ans"><span class="l">' + letters[i] + '</span>' + o + '</div>'
-    ).join('');
-    document.querySelectorAll('.hero-dot').forEach((d, i) => d.classList.toggle('on', i === heroIndex));
-  }
-  function nextHeroSlide(){
-    heroIndex = (heroIndex + 1) % heroSlides.length;
-    renderHero();
-  }
-  function goHeroSlide(i){
-    heroIndex = i;
-    renderHero();
-    resetHeroTimer();
-  }
-  function resetHeroTimer(){
-    if (heroTimer) clearInterval(heroTimer);
-    heroTimer = setInterval(nextHeroSlide, HERO_SLIDE_INTERVAL_MS);
-  }
-  renderHero();
-  resetHeroTimer();
 
   function toggleMobileMenu(btn){
     const menu = btn.closest('.mkt-nav').nextElementSibling; // the .mobile-menu right after this screen's mkt-nav
