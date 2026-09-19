@@ -1019,6 +1019,30 @@
     .gcard-row{grid-template-columns:1fr;}
     .filter-chips{flex-wrap:wrap;}
 
+    /* ---- creator library (Mobile only; scoped to this screen, shared rules above untouched) ---- */
+    /* header: same pattern as the Dashboard — row 1 title + Create, row 2 subtitle at full width */
+    [data-screen="library"] .head-row{align-items:center;flex-wrap:wrap;column-gap:12px;row-gap:4px;}
+    [data-screen="library"] .head-row > div{display:contents;}
+    [data-screen="library"] .head-row h2{order:1;flex:1 1 0;min-width:0;margin:0;}
+    [data-screen="library"] .head-row > .btn{order:2;flex:0 0 auto;white-space:nowrap;padding:9px 15px;font-size:12.5px;}
+    [data-screen="library"] .head-row .sub{order:3;flex:0 0 100%;font-size:13px;color:var(--ink-soft);margin-top:0;}
+    [data-screen="library"] .gtype-section{margin:16px 0 22px;}
+    [data-screen="library"] .gtype-head{margin-bottom:10px;}
+    /* single column. The JS sets an inline display (flex) on these rows, so the column direction is set here instead of relying on grid */
+    [data-screen="library"] #libraryHasGamesRow,
+    [data-screen="library"] #libraryEmptyGamesRow{flex-direction:column;gap:10px;}
+    /* compact game row: title + status, meta, inline stats; › in a reserved right gutter */
+    [data-screen="library"] .gcard{position:relative;padding:12px 34px 12px 14px;}
+    [data-screen="library"] .gcard:not(.empty-slot):not(.locked-slot)::after{content:"›";position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:20px;line-height:1;color:var(--ink-soft);}
+    [data-screen="library"] .gcard .stats{gap:14px;margin-top:8px;}
+    [data-screen="library"] .gcard .stats .s{display:flex;align-items:baseline;gap:5px;font-size:11.5px;}
+    [data-screen="library"] .gcard .stats .s b{display:inline;font-size:14px;}
+    [data-screen="library"] .gcard:has(.pill.brand) .stats{display:none;} /* Draft: no placeholder "— / —" stats */
+    /* slim horizontal empty / locked slots */
+    [data-screen="library"] .gcard.empty-slot,
+    [data-screen="library"] .gcard.locked-slot{flex-direction:row;justify-content:flex-start;align-items:center;gap:10px;min-height:0;text-align:left;padding:10px 14px;}
+    [data-screen="library"] .gcard.empty-slot .sub{margin-left:auto;text-align:right;}
+
     /* ---- manage detail ---- */
     .detail-tabs{overflow-x:auto;white-space:nowrap;}
     .detail-head{flex-wrap:wrap;}
