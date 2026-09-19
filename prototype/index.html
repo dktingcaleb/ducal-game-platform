@@ -908,10 +908,13 @@
        other .player-stage usage keeps its exact current flex-centering behavior untouched. */
     .player-stage.has-bottomnav{
       display:block;min-height:0;
-      padding:30px 18px 90px;
+      padding:30px 18px 0;
     }
     .player-stage.has-bottomnav > .center-card{margin:0 auto;}
-    .player-stage.has-bottomnav > .m-bottomnav{margin:0 -18px -90px;}
+    /* The tab is placed in normal flow below the card (30px gap, flush with the stage's bottom edge).
+       The previous -90px bottom margin + 90px stage padding pulled the sticky tab up over the card's
+       lower content/CTA, because .player-stage is overflow:hidden (so the tab can't stick to the viewport). */
+    .player-stage.has-bottomnav > .m-bottomnav{margin:30px -18px 0;}
 
     /* Games: Bottom Tab is the primary navigation at this width, so the competing Marketing
        nav links/hamburger/CTA and its mobile dropdown are hidden — scoped to the games screen
@@ -3705,6 +3708,17 @@
         addrBar.textContent = s.addr;
       } else if (s.id.indexOf('legal-') === 0) {
         openLegal(s.id.slice('legal-'.length)); // openLegal() already sets addrBar itself
+      } else if (s.id === 'gametype-select') {
+        selectCategory('quiz'); // review nav: initialize a valid representative category first (same call the real flow uses)
+      } else if (s.id === 'math-difficulty') {
+        selectCategory('math'); // so "← 返回 Math" lands on a populated Math Game Type list
+        openMathOperation(0); // Addition — matches this entry's address-bar string
+      } else if (s.id === 'missing-difficulty') {
+        selectCategory('math');
+        openMissingOperation('mixed'); // Mixed — matches this entry's address-bar string
+      } else if (s.id === 'gametype-intro') {
+        selectCategory('quiz'); // so the close/back path lands on a populated Game Type list
+        openGameTypeIntro('quiz', 0); // How Well Do You Know Me? — matches this entry's address-bar string
       } else {
         go(s.id);
       }
