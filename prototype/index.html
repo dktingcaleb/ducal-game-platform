@@ -5499,7 +5499,9 @@
 
     const resultsPanel = document.getElementById('detailResultsPanel');
     if (g.hasResults) {
-      resultsPanel.querySelectorAll(':scope > *').forEach(el => el.style.display = '');
+      // #lbMore's display belongs to toggleLbExpand() (collapsed by default) — don't reset it here
+      resultsPanel.querySelectorAll(':scope > *').forEach(el => { if (el.id !== 'lbMore') el.style.display = ''; });
+      document.getElementById('lbExpandBtn').textContent = document.getElementById('lbMore').style.display === 'block' ? '收起 ▴' : '展开全部排名 ▾';
       const emptyMsg = document.getElementById('detailResultsEmpty');
       if (emptyMsg) emptyMsg.remove();
     } else {
