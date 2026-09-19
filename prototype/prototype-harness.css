@@ -38,3 +38,20 @@
   .dots span:nth-child(2){background:#FFBD2E;}
   .dots span:nth-child(3){background:#28C93F;}
   .addr{flex:1;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--ink-soft);font-family:monospace;}
+
+  /* ---- Design Studio (harness-only): Family -> Screen -> State -> Device ---- */
+  .ds-families{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:20px 0 0;}
+  .ds-families button{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:9px 18px;border-radius:100px;border:1.5px solid var(--line);background:#fff;color:var(--ink-soft);cursor:pointer;transition:.15s;}
+  .ds-families button:hover{border-color:var(--brand);color:var(--brand-dark);}
+  .ds-families button.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+  .nav-strip .ds-group-label{align-self:center;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);padding:0 8px 0 10px;}
+  .subnav .pr-config{display:none;} /* superseded by the Design Studio context line */
+  .ds-bar{display:flex;align-items:center;justify-content:center;gap:10px;margin:-14px auto 18px;max-width:1000px;}
+  .ds-copy{flex:0 0 auto;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:700;padding:7px 14px;border-radius:100px;border:1.5px solid var(--line);background:#fff;color:var(--ink-soft);cursor:pointer;white-space:nowrap;}
+  .ds-copy:hover{border-color:var(--brand);color:var(--brand-dark);}
+  .ds-context{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;margin:0;padding:6px 14px;flex:0 1 auto;max-width:880px;font-size:11.5px;font-family:monospace;color:var(--ink-soft);background:#fff;border:1px solid var(--line);border-radius:10px;}
+  .ds-context .k{opacity:.7;margin-right:5px;}
+  .ds-context .k:after{content:":";}
+  .ds-context .v{color:var(--ink);font-weight:700;}
+
+  .ds-families ~ .subnav{margin:14px 0 24px;} /* the Player picker now sits directly under the family row, not under the screen strip */

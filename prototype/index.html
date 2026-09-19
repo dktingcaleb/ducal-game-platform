@@ -1030,13 +1030,15 @@
     <p>以桌面版的信息架构为主：Creator 工作台、按类型分组的 Game 管理、居中的 Player 体验。下面同一份代码会随宽度自动重排——切换设备宽度看效果，或直接拖动浏览器窗口。</p>
   </div>
 
-  <div class="nav-strip"><div class="grp" id="navGroup"></div></div>
+  <div class="ds-families" id="dsFamilies"></div>
+  <div class="nav-strip" id="dsScreens"><div class="grp" id="navGroup"></div></div>
   <div class="subnav" id="subNav" style="display:none;"></div>
   <div class="device-toggle" id="deviceToggle">
     <button class="on" data-w="full">🖥 Desktop <span class="w">1280</span></button>
     <button data-w="834">💻 Tablet <span class="w">834</span></button>
     <button data-w="390">📱 Mobile <span class="w">390</span></button>
   </div>
+  <div class="ds-context" id="designContext" aria-live="polite"></div>
 
   <div class="browser" id="browserFrame">
     <div class="chrome-bar">
@@ -3693,44 +3695,8 @@
   const subNav = document.getElementById('subNav');
   const addrBar = document.getElementById('addrBar');
 
-  screens.forEach(s=>{
-    const b = document.createElement('button');
-    b.textContent = s.label;
-    b.dataset.target = s.id;
-    b.onclick = ()=>{
-      if (s.id === 'workbench') {
-        wbGameHasPlays = false;
-        go('workbench');
-        addrBar.textContent = s.addr;
-      } else if (s.id === 'workbench-locked') {
-        wbGameHasPlays = true;
-        go('workbench');
-        addrBar.textContent = s.addr;
-      } else if (s.id.indexOf('legal-') === 0) {
-        openLegal(s.id.slice('legal-'.length)); // openLegal() already sets addrBar itself
-      } else if (s.id === 'gametype-select') {
-        selectCategory('quiz'); // review nav: initialize a valid representative category first (same call the real flow uses)
-      } else if (s.id === 'math-difficulty') {
-        selectCategory('math'); // so "← 返回 Math" lands on a populated Math Game Type list
-        openMathOperation(0); // Addition — matches this entry's address-bar string
-      } else if (s.id === 'missing-difficulty') {
-        selectCategory('math');
-        openMissingOperation('mixed'); // Mixed — matches this entry's address-bar string
-      } else if (s.id === 'gametype-intro') {
-        selectCategory('quiz'); // so the close/back path lands on a populated Game Type list
-        openGameTypeIntro('quiz', 0); // How Well Do You Know Me? — matches this entry's address-bar string
-      } else {
-        go(s.id);
-      }
-      // both workbench demo buttons map to the same underlying screen id, and all five legal-*
-      // entries map to the same underlying 'legal' screen id, so fix up which one shows as active
-      // after go()'s own highlight logic (keyed on the id actually passed to go()) misses them
-      if (s.id === 'workbench' || s.id === 'workbench-locked' || s.id.indexOf('legal-') === 0) {
-        document.querySelectorAll('#navGroup button').forEach(el=>el.classList.toggle('active', el===b));
-      }
-    };
-    navGroup.appendChild(b);
-  });
+  /* Screen review buttons are built by the Design Studio (prototype-harness.js) from the `screens`
+     metadata above plus DESIGN_FAMILIES; this file keeps only the metadata used by go() for the address bar. */
 
   /* ============================================================
      PLAYER REVIEW NAVIGATION — Prototype Harness only (review/dev/QA tool).
@@ -3795,6 +3761,7 @@
   let prOpId = 'add';
   let prDiffId = null;
   let prStateIdx = 0;
+  let dsBusy = false; // Design Studio: true while prOpen() is mid-configuration, so its intermediate go()/pgo() calls don't re-sync the review picker
 
   function prRow(items, activeId, onSelect){
     const row = document.createElement('div');
@@ -3853,14 +3820,20 @@
   function prOpen(){
     const states = PLAYER_REVIEW_STATES[prSeries];
     const targetStateId = states[prStateIdx].id;
-    if (prSeries === 'math') {
-      openMathGameSilent(prOpId, prDiffId);
-    } else if (prSeries === 'missing') {
-      openMissingGameSilent(prOpId, prDiffId);
+    dsBusy = true;
+    try {
+      if (prSeries === 'math') {
+        openMathGameSilent(prOpId, prDiffId);
+      } else if (prSeries === 'missing') {
+        openMissingGameSilent(prOpId, prDiffId);
+      }
+      go('player');
+      pgo(targetStateId);
+    } finally {
+      dsBusy = false;
     }
-    go('player');
-    pgo(targetStateId);
     prUpdateConfigLabel();
+    if (typeof dsSync === 'function') dsSync();
   }
 
   function prUpdateConfigLabel(){
@@ -3966,6 +3939,7 @@
     if(id==='missing-difficulty'){
       renderMissingDifficultyList(currentMissingOpId || 'mixed');
     }
+    if (typeof dsSync === 'function') dsSync(); // Design Studio (harness) keeps its family/screen/context display in step
   }
   function goBack(){
     go(previousScreenId || 'landing');
@@ -3987,6 +3961,7 @@
     });
     document.querySelectorAll('#subNav button').forEach(el=>el.classList.toggle('active', el.dataset.p===id));
     window.scrollTo(0, 0);
+    if (typeof dsSync === 'function') dsSync(); // Design Studio (harness) context display
     if (id !== 'question-math') clearMathTimer(); // safety net: any navigation away from the math question screen stops its countdown, so it can't fire against a later session's state
     if (id !== 'question-missing') clearMissingTimer(); // same safety net for the separate Missing Number Challenge timer
     if (id === 'question') {
@@ -6867,6 +6842,7 @@
 
     go('legal');
     addrBar.textContent = doc.addr; // same override pattern already used by the workbench/workbench-locked harness buttons
+    if (typeof dsSync === 'function') dsSync(); // address string is now final, so the Design Studio can resolve which legal document is showing
   }
   prRender(); // build the Player Review Navigation now that MATH_OPS/MATH_DIFFICULTIES/MISSING_DIFFICULTIES exist; #subNav stays hidden until the Player screen is opened
   go('landing');
